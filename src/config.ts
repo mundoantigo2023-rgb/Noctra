@@ -8,6 +8,8 @@ export interface SingleConfig {
   title: string;
   tag: string;
   badge: string;
+  isReleased: boolean;
+  releaseDateText: string;
   subtitle: string;
   description: string;
   coverImage: string;
@@ -66,8 +68,10 @@ export const LINKS_CONFIG: LinksConfig = {
     {
       id: "two-cups",
       title: "Two Cups",
-      tag: "NEW RELEASE",
-      badge: "OUT NOW",
+      tag: "PRE-SAVE",
+      badge: "RELEASING NOV 13",
+      isReleased: false,
+      releaseDateText: "Coming November 13, 2026",
       subtitle:
         "The hardest part of someone leaving is the habits they leave behind. Pouring a second cup for a ghost.",
       description:
@@ -83,6 +87,8 @@ export const LINKS_CONFIG: LinksConfig = {
       title: "2:17 AM",
       tag: "DEBUT SINGLE",
       badge: "OUT NOW",
+      isReleased: true,
+      releaseDateText: "Out Now",
       subtitle:
         "When the world goes completely quiet, and the memories of someone who left become deafening.",
       description:

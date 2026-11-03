@@ -521,7 +521,7 @@ const HeroAboveTheFold = ({
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-black shrink-0" />
-              Two Cups (NEW)
+              Two Cups (Nov 13)
             </button>
             <button
               onClick={() => setActiveSingle(single217)}
@@ -532,7 +532,7 @@ const HeroAboveTheFold = ({
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-[#1DB954] shrink-0" />
-              2:17 AM
+              2:17 AM (Out Now)
             </button>
           </div>
 
@@ -550,7 +550,9 @@ const HeroAboveTheFold = ({
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[9px] font-mono tracking-widest text-[#d97706] uppercase">
+                <span className={`text-[9px] font-mono tracking-widest uppercase ${
+                  activeSingle.isReleased ? 'text-[#1DB954]' : 'text-[#d97706]'
+                }`}>
                   {activeSingle.badge}
                 </span>
                 <span className="text-white/30 text-xs">•</span>
@@ -575,7 +577,7 @@ const HeroAboveTheFold = ({
               className="btn-spotify w-full py-3.5 px-4 rounded-xl font-bold text-xs sm:text-sm tracking-wider flex items-center justify-center gap-2.5 shadow-lg select-none"
             >
               {Icons.spotify}
-              <span>LISTEN ON SPOTIFY</span>
+              <span>{activeSingle.isReleased ? 'LISTEN ON SPOTIFY' : 'PRE-SAVE ON SPOTIFY'}</span>
             </a>
 
             {/* 2. Apple Music CTA */}
@@ -586,7 +588,7 @@ const HeroAboveTheFold = ({
               className="btn-apple w-full py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm tracking-wider flex items-center justify-center gap-2.5 select-none"
             >
               {Icons.apple}
-              <span>LISTEN ON APPLE MUSIC</span>
+              <span>{activeSingle.isReleased ? 'LISTEN ON APPLE MUSIC' : 'PRE-ADD ON APPLE MUSIC'}</span>
             </a>
 
             {/* 3. YouTube Visualizer CTA */}
@@ -595,7 +597,7 @@ const HeroAboveTheFold = ({
               className="btn-youtube w-full py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm tracking-wider flex items-center justify-center gap-2.5 select-none"
             >
               {Icons.youtube}
-              <span>WATCH ON YOUTUBE</span>
+              <span>{activeSingle.isReleased ? 'WATCH ON YOUTUBE' : 'WATCH TEASER / VIDEO'}</span>
             </button>
 
             {/* 4. Follow on TikTok & Instagram (Split Thumb Pills) */}
@@ -716,7 +718,22 @@ const ReleasesSection = ({
                     {single.description}
                   </p>
 
-                  {/* Spotify Player Embed (for 2:17 AM) */}
+                  {/* Pre-save announcement box for unreleased single */}
+                  {!single.isReleased && (
+                    <div className="mb-4 p-3.5 rounded-xl bg-[#d97706]/10 border border-[#d97706]/30 flex items-center gap-3">
+                      <Sparkles className="w-4 h-4 text-[#d97706] shrink-0 animate-pulse" />
+                      <div className="text-left">
+                        <p className="text-[11px] font-mono font-semibold text-[#d97706] uppercase tracking-wider">
+                          Releasing November 13, 2026
+                        </p>
+                        <p className="text-[10px] text-[#F3EEE7]/70 font-light leading-snug">
+                          Pre-save now to add it automatically to your Spotify & Apple Music library.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Spotify Player Embed (for released singles like 2:17 AM) */}
                   {single.spotifyEmbedUrl && (
                     <div className="mb-4 overflow-hidden rounded-xl border border-white/10 bg-black/60 shadow-inner">
                       <iframe
@@ -743,7 +760,7 @@ const ReleasesSection = ({
                       className="flex-1 py-2.5 px-3.5 rounded-xl bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold text-xs tracking-wider flex items-center justify-center gap-2 transition-all shadow-[0_4px_20px_rgba(29,185,84,0.3)]"
                     >
                       {Icons.spotify}
-                      <span>SPOTIFY</span>
+                      <span>{single.isReleased ? 'SPOTIFY' : 'PRE-SAVE'}</span>
                     </a>
                     <a
                       href={single.appleMusicUrl}
@@ -752,7 +769,7 @@ const ReleasesSection = ({
                       className="flex-1 py-2.5 px-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs tracking-wider flex items-center justify-center gap-2 border border-white/15 transition-all"
                     >
                       {Icons.apple}
-                      <span>APPLE MUSIC</span>
+                      <span>{single.isReleased ? 'APPLE MUSIC' : 'PRE-ADD'}</span>
                     </a>
                     <button
                       onClick={() => onOpenVideo(single.youtubeVisualizerId)}
@@ -760,7 +777,7 @@ const ReleasesSection = ({
                       aria-label={`Watch ${single.title} visualizer`}
                     >
                       {Icons.youtube}
-                      <span className="hidden sm:inline">VIDEO</span>
+                      <span className="hidden sm:inline">{single.isReleased ? 'VIDEO' : 'TEASER'}</span>
                     </button>
                   </div>
                 </div>
@@ -816,7 +833,7 @@ const VisualizerSection = ({
               }`}
             >
               <Play className="w-3 h-3 fill-current" />
-              <span>{single.title} Visualizer</span>
+              <span>{single.title} {single.isReleased ? 'Visualizer' : 'Teaser'}</span>
             </button>
           ))}
         </div>
@@ -828,16 +845,18 @@ const VisualizerSection = ({
               key={currentSingle.youtubeVisualizerId}
               className="w-full h-full"
               src={`https://www.youtube-nocookie.com/embed/${currentSingle.youtubeVisualizerId}?rel=0`}
-              title={`NOCTRA — ${currentSingle.title} (Official Visualizer)`}
+              title={`NOCTRA — ${currentSingle.title} (${currentSingle.isReleased ? 'Official Visualizer' : 'Official Teaser'})`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
             />
           </div>
           <div className="p-4 bg-[#080B14]/90 border-t border-white/8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
-              <span className="text-[9px] font-mono tracking-widest text-[#d97706] uppercase block mb-0.5">NOW SCREENING</span>
+              <span className="text-[9px] font-mono tracking-widest text-[#d97706] uppercase block mb-0.5">
+                {currentSingle.isReleased ? 'NOW SCREENING • OFFICIAL VISUALIZER' : 'NOW SCREENING • OFFICIAL TEASER'}
+              </span>
               <h3 className="font-cinzel font-bold text-base sm:text-lg text-white">
-                NOCTRA — {currentSingle.title} (Official Visualizer)
+                NOCTRA — {currentSingle.title} ({currentSingle.isReleased ? 'Official Visualizer' : 'Official Teaser'})
               </h3>
             </div>
             <a
