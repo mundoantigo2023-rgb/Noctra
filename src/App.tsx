@@ -9,12 +9,22 @@ import { LINKS_CONFIG, SingleConfig } from './config';
 /* ─────────────────────────────────────────────────────────────
    OFFICIAL BRAND ICONS & SYMBOLS
 ───────────────────────────────────────────────────────────── */
-const DaggerIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M14.5 17.5L3 6V3h3l11.5 11.5" />
-    <path d="m13 19 6-6" />
-    <path d="M16 16l4 4" />
-    <path d="M19 21l2-2" />
+const FlowerIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    {/* Delicate blooming nocturnal flower */}
+    <circle cx="12" cy="12" r="2.5" fill="currentColor" fillOpacity="0.25" />
+    <path d="M12 9.5C12 6.5 13.8 4.5 16 4.5C18 4.5 19.5 6 19.5 8C19.5 10.2 17.5 12 14.5 12" />
+    <path d="M14.5 12C17.5 12 19.5 13.8 19.5 16C19.5 18 18 19.5 16 19.5C13.8 19.5 12 17.5 12 14.5" />
+    <path d="M12 14.5C12 17.5 10.2 19.5 8 19.5C6 19.5 4.5 18 4.5 16C4.5 13.8 6.5 12 9.5 12" />
+    <path d="M9.5 12C6.5 12 4.5 10.2 4.5 8C4.5 6 6 4.5 8 4.5C10.2 4.5 12 6.5 12 9.5" />
   </svg>
 );
 
@@ -336,7 +346,7 @@ const Navbar = ({ onOpenReleases }: { onOpenReleases: () => void }) => {
         }`}
       >
         <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between">
-          {/* Logo with Dagger */}
+          {/* Logo with Flower */}
           <a
             href="#home"
             className="flex items-center gap-2 group text-white hover:text-[#d97706] transition-colors"
@@ -345,7 +355,7 @@ const Navbar = ({ onOpenReleases }: { onOpenReleases: () => void }) => {
             <span className="font-cinzel text-xl sm:text-2xl font-bold tracking-[0.25em] text-white">
               {LINKS_CONFIG.artistName}
             </span>
-            <DaggerIcon className="w-4 h-4 text-[#d97706] group-hover:rotate-12 transition-transform duration-300" />
+            <FlowerIcon className="w-4 h-4 text-[#d97706] group-hover:rotate-45 transition-transform duration-300" />
           </a>
 
           {/* Desktop Nav */}
@@ -480,13 +490,13 @@ const HeroAboveTheFold = ({
       {/* Main Container */}
       <div className="relative z-10 w-full max-w-md sm:max-w-xl mx-auto flex flex-col items-center text-center">
         
-        {/* Brand Header with Dagger */}
+        {/* Brand Header with Flower */}
         <div className="flex items-center justify-center gap-2.5 mb-1.5">
-          <DaggerIcon className="w-5 h-5 text-[#d97706] animate-pulse" />
+          <FlowerIcon className="w-5 h-5 text-[#d97706] animate-pulse" />
           <h1 className="font-cinzel text-3xl sm:text-4xl md:text-5xl font-black tracking-[0.28em] text-white text-glow-hero uppercase">
             {LINKS_CONFIG.artistName}
           </h1>
-          <DaggerIcon className="w-5 h-5 text-[#d97706] animate-pulse" />
+          <FlowerIcon className="w-5 h-5 text-[#d97706] animate-pulse" />
         </div>
 
         {/* Tagline */}
@@ -640,7 +650,7 @@ const ReleasesSection = ({
         {/* Section Header */}
         <div className="text-center mb-10 sm:mb-12 reveal">
           <div className="inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.3em] text-[#d97706] uppercase mb-1.5">
-            <DaggerIcon className="w-3.5 h-3.5" />
+            <FlowerIcon className="w-3.5 h-3.5" />
             <span>OFFICIAL RELEASES</span>
           </div>
           <h2 className="font-cinzel font-bold text-2xl sm:text-3xl lg:text-4xl text-white tracking-wide">
@@ -881,7 +891,7 @@ const AboutSection = () => (
           {/* Biography Text Column */}
           <div className="md:col-span-7 flex flex-col gap-4">
             <div className="flex items-center gap-2">
-              <DaggerIcon className="w-4 h-4 text-[#d97706]" />
+              <FlowerIcon className="w-4 h-4 text-[#d97706]" />
               <span className="text-[10px] font-mono tracking-[0.3em] text-[#d97706] uppercase">
                 THE ARTIST & UNIVERSE
               </span>
@@ -1000,12 +1010,12 @@ const SiteFooter = () => (
   <footer className="border-t border-white/5 py-10 safe-pb bg-[#030305]">
     <div className="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col items-center gap-5 text-center">
       
-      {/* Brand & Dagger */}
+      {/* Brand & Flower */}
       <div className="flex items-center gap-2">
         <span className="font-cinzel font-bold text-lg tracking-[0.3em] text-white">
           {LINKS_CONFIG.artistName}
         </span>
-        <DaggerIcon className="w-3.5 h-3.5 text-[#d97706]" />
+        <FlowerIcon className="w-3.5 h-3.5 text-[#d97706]" />
       </div>
 
       {/* Social Platforms */}
