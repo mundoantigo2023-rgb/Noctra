@@ -49,7 +49,7 @@ export const LINKS_CONFIG: LinksConfig = {
 
   // 1. STREAMING & SOCIAL PROFILES (Easily editable)
   spotifyArtistUrl: "https://open.spotify.com/intl-es/artist/4501dvruPQPwODUjWkWpz4",
-  appleMusicArtistUrl: "https://music.apple.com/es/album/2-17-am/6817391478?i=6817391482",
+  appleMusicArtistUrl: "https://music.apple.com/es/artist/noctra/1841512361",
   youtubeChannelUrl: "https://youtube.com/@noctra_artist?si=us4X75Agv3icDT-Y",
   youtubeFeaturedVideoId: "TMnZQHayL2k",
   youtubeFeaturedVideoUrl: "https://youtu.be/TMnZQHayL2k",
@@ -74,7 +74,7 @@ export const LINKS_CONFIG: LinksConfig = {
         "A colder, darker continuation of the Noctra universe. Intimate production, heavy sub-bass and the suffocating tension of words left unsaid the morning after.",
       coverImage: "/capa_two_cups.jpg",
       spotifyUrl: "https://open.spotify.com/album/2kTTSs1W7InLEuPQ4pRvXn",
-      appleMusicUrl: "https://music.apple.com",
+      appleMusicUrl: "https://music.apple.com/es/artist/noctra/1841512361",
       youtubeUrl: "https://youtu.be/TMnZQHayL2k",
       youtubeVisualizerId: "TMnZQHayL2k",
     },
