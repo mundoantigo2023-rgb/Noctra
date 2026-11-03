@@ -10,6 +10,7 @@ export interface SingleConfig {
   badge: string;
   isReleased: boolean;
   releaseDateText: string;
+  preSaveUrl?: string;
   subtitle: string;
   description: string;
   coverImage: string;
@@ -72,13 +73,14 @@ export const LINKS_CONFIG: LinksConfig = {
       badge: "RELEASING NOV 13",
       isReleased: false,
       releaseDateText: "Coming November 13, 2026",
+      preSaveUrl: "https://ffm.to/twocups",
       subtitle:
         "The hardest part of someone leaving is the habits they leave behind. Pouring a second cup for a ghost.",
       description:
         "A colder, darker continuation of the Noctra universe. Intimate production, heavy sub-bass and the suffocating tension of words left unsaid the morning after.",
       coverImage: "/capa_two_cups.jpg",
-      spotifyUrl: "https://open.spotify.com/album/2kTTSs1W7InLEuPQ4pRvXn",
-      appleMusicUrl: "https://music.apple.com/es/artist/noctra/1841512361",
+      spotifyUrl: "https://ffm.to/twocups",
+      appleMusicUrl: "https://ffm.to/twocups",
       youtubeUrl: "https://youtu.be/TMnZQHayL2k",
       youtubeVisualizerId: "TMnZQHayL2k",
     },

@@ -720,17 +720,26 @@ const ReleasesSection = ({
 
                   {/* Pre-save announcement box for unreleased single */}
                   {!single.isReleased && (
-                    <div className="mb-4 p-3.5 rounded-xl bg-[#d97706]/10 border border-[#d97706]/30 flex items-center gap-3">
-                      <Sparkles className="w-4 h-4 text-[#d97706] shrink-0 animate-pulse" />
-                      <div className="text-left">
-                        <p className="text-[11px] font-mono font-semibold text-[#d97706] uppercase tracking-wider">
-                          Releasing November 13, 2026
-                        </p>
-                        <p className="text-[10px] text-[#F3EEE7]/70 font-light leading-snug">
-                          Pre-save now to add it automatically to your Spotify & Apple Music library.
-                        </p>
+                    <a
+                      href={single.preSaveUrl || single.spotifyUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mb-4 p-3.5 rounded-xl bg-[#d97706]/10 border border-[#d97706]/30 hover:border-[#d97706] hover:bg-[#d97706]/15 transition-all flex items-center justify-between gap-3 group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Sparkles className="w-4 h-4 text-[#d97706] shrink-0 animate-pulse" />
+                        <div className="text-left">
+                          <p className="text-[11px] font-mono font-semibold text-[#d97706] uppercase tracking-wider flex items-center gap-1.5">
+                            <span>Releasing November 13, 2026</span>
+                            <span className="text-[9px] bg-[#d97706] text-black px-1.5 py-0.5 rounded font-bold leading-none">PRE-SAVE LIVE</span>
+                          </p>
+                          <p className="text-[10px] text-[#F3EEE7]/80 font-light leading-snug mt-0.5">
+                            Tap to pre-save now on Spotify, Apple Music & more via Feature.fm.
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                      <ArrowRight className="w-4 h-4 text-[#d97706] group-hover:translate-x-1 transition-transform shrink-0" />
+                    </a>
                   )}
 
                   {/* Spotify Player Embed (for released singles like 2:17 AM) */}
