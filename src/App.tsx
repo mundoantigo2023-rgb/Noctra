@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Play, Pause, X, Menu, Check, Volume2, VolumeX,
-  ChevronDown, Bell, BookOpen, Music, Film, ArrowRight
+  Play, X, Menu, Check,
+  ChevronDown, BookOpen, Music, Film, ArrowRight
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -9,6 +9,8 @@ import confetti from 'canvas-confetti';
    LINKS & CONSTANTS
 ───────────────────────────────────────────── */
 const RELEASE_DATE_217AM = new Date('2026-10-16T00:00:00');
+const SPOTIFY_TRACK_URL = 'https://open.spotify.com/intl-es/track/7ob3AKsKCbB1UpK2JJLbzx?si=2eb69c02317f4049';
+const SPOTIFY_EMBED_URL = 'https://open.spotify.com/embed/track/7ob3AKsKCbB1UpK2JJLbzx?utm_source=generator&theme=0';
 const SPOTIFY_PRE_SAVE_URL = 'https://open.spotify.com/album/2kTTSs1W7InLEuPQ4pRvXn';
 const SPOTIFY_ARTIST_URL = 'https://open.spotify.com/intl-es/artist/4501dvruPQPwODUjWkWpz4';
 const YOUTUBE_URL = 'https://youtube.com/@noctra_artist?si=us4X75Agv3icDT-Y';
@@ -82,27 +84,19 @@ const NAV_LINKS = [
    MAIN COMPONENT
 ───────────────────────────────────────────── */
 export default function App() {
-  const [isReleased217, setIsReleased217] = useState(false);
+  const [isReleased217, setIsReleased217] = useState(true);
 
   useEffect(() => {
     const checkRelease = () => {
       const params = new URLSearchParams(window.location.search);
-      if (params.get('released') === 'true') {
-        setIsReleased217(true);
+      if (params.get('released') === 'false') {
+        setIsReleased217(false);
         return;
       }
-      setIsReleased217(new Date() >= RELEASE_DATE_217AM);
+      setIsReleased217(true);
     };
     checkRelease();
-    const interval = setInterval(checkRelease, 1000);
-    return () => clearInterval(interval);
   }, []);
-
-  // Audio player state
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [trackProgress, setTrackProgress] = useState(0);
-  const [isMuted, setIsMuted] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Video modal
   const [isVideoOpen, setIsVideoOpen] = useState(false);
@@ -118,29 +112,12 @@ export default function App() {
   useScrollReveal();
 
   useEffect(() => {
-    if (!audioRef.current) return;
-    if (isPlaying && isReleased217) {
-      audioRef.current.play().catch(() => setIsPlaying(false));
-    } else {
-      audioRef.current.pause();
-      if (!isReleased217 && isPlaying) {
-        setIsPlaying(false);
-      }
-    }
-  }, [isPlaying, isReleased217]);
-
-  useEffect(() => {
     if (!isVideoOpen) return;
     document.body.style.overflow = 'hidden';
     const fn = (e: KeyboardEvent) => { if (e.key === 'Escape') setIsVideoOpen(false); };
     window.addEventListener('keydown', fn);
     return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', fn); };
   }, [isVideoOpen]);
-
-  const togglePlay = () => {
-    if (!isReleased217) return;
-    setIsPlaying(!isPlaying);
-  };
 
   const handleJoin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,38 +140,18 @@ export default function App() {
       {/* Film grain subtle overlay */}
       <div className="grain-overlay" aria-hidden="true" />
 
-      {/* Hidden audio element */}
-      <audio
-        ref={audioRef}
-        src="/2_17_AM.wav"
-        onTimeUpdate={() => {
-          if (audioRef.current) {
-            setTrackProgress((audioRef.current.currentTime / (audioRef.current.duration || 1)) * 100);
-          }
-        }}
-        onEnded={() => setIsPlaying(false)}
-        muted={isMuted}
-      />
-
       {/* NAVBAR */}
-      <Navbar onOpenVideo={() => { audioRef.current?.pause(); setIsPlaying(false); setIsVideoOpen(true); }} />
+      <Navbar onOpenVideo={() => setIsVideoOpen(true)} />
 
       {/* HERO */}
       <HeroSection
-        isPlaying={isPlaying}
-        onTogglePlay={togglePlay}
-        onOpenVideo={() => { audioRef.current?.pause(); setIsPlaying(false); setIsVideoOpen(true); }}
+        onOpenVideo={() => setIsVideoOpen(true)}
         isReleased={isReleased217}
       />
 
       {/* UNIFIED RELEASES & ROADMAP SECTION */}
       <ReleasesSection
-        isPlaying={isPlaying}
-        trackProgress={trackProgress}
-        isMuted={isMuted}
-        onTogglePlay={togglePlay}
-        onMute={() => setIsMuted(!isMuted)}
-        onOpenVideo={() => { audioRef.current?.pause(); setIsPlaying(false); setIsVideoOpen(true); }}
+        onOpenVideo={() => setIsVideoOpen(true)}
         isReleased={isReleased217}
         notifyEmail={notifyEmail}
         setNotifyEmail={setNotifyEmail}
@@ -203,7 +160,7 @@ export default function App() {
       />
 
       {/* WATCH */}
-      <WatchSection onOpenVideo={() => { audioRef.current?.pause(); setIsPlaying(false); setIsVideoOpen(true); }} />
+      <WatchSection onOpenVideo={() => setIsVideoOpen(true)} />
 
       {/* ABOUT */}
       <AboutSection />
@@ -213,21 +170,6 @@ export default function App() {
 
       {/* FOOTER */}
       <SiteFooter />
-
-      {/* MINI PLAYER */}
-      {isReleased217 && (isPlaying || trackProgress > 0) && (
-        <MiniPlayer
-          isPlaying={isPlaying}
-          progress={trackProgress}
-          onToggle={togglePlay}
-          onClose={() => {
-            audioRef.current?.pause();
-            setIsPlaying(false);
-            setTrackProgress(0);
-            if (audioRef.current) audioRef.current.currentTime = 0;
-          }}
-        />
-      )}
 
       {/* VIDEO MODAL */}
       {isVideoOpen && (
@@ -327,9 +269,9 @@ const Navbar = ({ onOpenVideo }: { onOpenVideo: () => void }) => {
             </a>
             <a
               href="#releases"
-              className="ml-1 border border-[#C8A25A]/40 hover:border-[#C8A25A] text-[#F3EEE7] hover:text-[#C8A25A] px-3.5 py-1.5 rounded-full text-[10px] font-mono tracking-[0.18em] transition-all"
+              className="ml-1 border border-[#1DB954]/50 hover:border-[#1DB954] text-[#F3EEE7] hover:text-[#1DB954] px-3.5 py-1.5 rounded-full text-[10px] font-mono tracking-[0.18em] transition-all"
             >
-              PRE-SAVE
+              LISTEN NOW
             </a>
           </div>
 
@@ -382,9 +324,9 @@ const Navbar = ({ onOpenVideo }: { onOpenVideo: () => void }) => {
               setMobileOpen(false);
               document.getElementById('releases')?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="w-full bg-[#C8A25A] text-black font-bold py-3 rounded-full text-xs tracking-[0.2em] uppercase"
+            className="w-full bg-[#1DB954] text-black font-bold py-3 rounded-full text-xs tracking-[0.2em] uppercase"
           >
-            EXPLORE RELEASES
+            LISTEN TO 2:17 AM
           </button>
         </div>
       </div>
@@ -396,10 +338,8 @@ const Navbar = ({ onOpenVideo }: { onOpenVideo: () => void }) => {
    HERO SECTION (Balanced & Proportionate)
 ───────────────────────────────────────────── */
 const HeroSection = ({
-  isPlaying, onTogglePlay, onOpenVideo, isReleased
+  onOpenVideo, isReleased
 }: {
-  isPlaying: boolean;
-  onTogglePlay: () => void;
   onOpenVideo: () => void;
   isReleased: boolean;
 }) => {
@@ -422,9 +362,9 @@ const HeroSection = ({
       <div className="relative z-10 max-w-4xl mx-auto px-5 sm:px-8 text-center flex flex-col items-center pt-24 pb-16 sm:py-28">
         {/* Eyebrow badge */}
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-[#C8A25A]/30 mb-6 backdrop-blur-sm">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#C8A25A] animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#1DB954] animate-pulse" />
           <span className="text-[10px] font-mono tracking-[0.25em] text-[#C8A25A] uppercase">
-            DEBUT SINGLE • OCTOBER 16, 2026
+            DEBUT SINGLE • OUT NOW
           </span>
         </div>
 
@@ -445,25 +385,13 @@ const HeroSection = ({
 
         {/* Primary Action Buttons */}
         <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto mb-6">
-          {isReleased ? (
-            <button
-              onClick={onTogglePlay}
-              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-[#F3EEE7] hover:bg-[#C8A25A] text-black font-bold px-7 py-3 rounded-full text-xs tracking-[0.2em] transition-all hover:scale-105 shadow-[0_8px_30px_rgba(243,238,231,0.2)]"
-            >
-              {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
-              LISTEN TO 2:17 AM
-            </button>
-          ) : (
-            <a
-              href={SPOTIFY_PRE_SAVE_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold px-7 py-3 rounded-full text-xs tracking-[0.2em] transition-all hover:scale-105 shadow-[0_8px_30px_rgba(29,185,84,0.35)]"
-            >
-              {Icons.spotify}
-              PRE-SAVE ON SPOTIFY
-            </a>
-          )}
+          <a
+            href="#releases"
+            className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold px-7 py-3 rounded-full text-xs tracking-[0.2em] transition-all hover:scale-105 shadow-[0_8px_30px_rgba(29,185,84,0.35)]"
+          >
+            {Icons.spotify}
+            LISTEN TO 2:17 AM
+          </a>
           <button
             onClick={onOpenVideo}
             className="w-full sm:w-auto flex items-center justify-center gap-2.5 border border-[#C8A25A]/40 hover:border-[#C8A25A] text-[#F3EEE7] hover:text-[#C8A25A] bg-black/30 hover:bg-[#C8A25A]/10 px-7 py-3 rounded-full text-xs tracking-[0.2em] transition-all hover:scale-105 backdrop-blur-sm"
@@ -476,8 +404,8 @@ const HeroSection = ({
         {/* Dual Release Roadmap Pill */}
         <div className="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-4 px-4 py-2 rounded-full bg-[#0C0C0F]/80 border border-white/8 text-[10px] font-mono tracking-wider text-[#A3B1C6]/80">
           <span className="flex items-center gap-1.5 text-[#F3EEE7]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#C8A25A]" />
-            2:17 AM • Oct 16
+            <span className="w-1.5 h-1.5 rounded-full bg-[#1DB954]" />
+            2:17 AM • Out Now
           </span>
           <span className="text-white/20">•</span>
           <span className="flex items-center gap-1.5 text-[#A3B1C6]">
@@ -505,14 +433,9 @@ const HeroSection = ({
    (Compact, Clean, Side-by-Side Spotlight)
 ───────────────────────────────────────────── */
 const ReleasesSection = ({
-  isPlaying, trackProgress, isMuted, onTogglePlay, onMute, onOpenVideo, isReleased,
+  onOpenVideo, isReleased,
   notifyEmail, setNotifyEmail, notified, onNotify
 }: {
-  isPlaying: boolean;
-  trackProgress: number;
-  isMuted: boolean;
-  onTogglePlay: () => void;
-  onMute: () => void;
   onOpenVideo: () => void;
   isReleased: boolean;
   notifyEmail: string;
@@ -549,15 +472,9 @@ const ReleasesSection = ({
                   <span className="text-[9px] font-mono tracking-[0.25em] text-[#C8A25A] uppercase bg-[#C8A25A]/10 px-2.5 py-1 rounded-full border border-[#C8A25A]/25">
                     SINGLE 01
                   </span>
-                  {isReleased ? (
-                    <span className="text-[9px] font-mono tracking-[0.2em] bg-[#1DB954] text-black font-bold px-2 py-0.5 rounded-full">
-                      OUT NOW
-                    </span>
-                  ) : (
-                    <span className="text-[9px] font-mono tracking-[0.2em] border border-[#C8A25A]/60 text-[#C8A25A] px-2 py-0.5 rounded-full">
-                      OCTOBER 16
-                    </span>
-                  )}
+                  <span className="text-[9px] font-mono tracking-[0.2em] bg-[#1DB954] text-black font-bold px-2 py-0.5 rounded-full">
+                    OUT NOW
+                  </span>
                 </div>
                 <span className="text-[10px] font-mono text-[#A3B1C6]/50">2026</span>
               </div>
@@ -585,64 +502,32 @@ const ReleasesSection = ({
                 The debut single capturing the silence and tension of the night when every thought gets louder.
               </p>
 
-              {/* Conditional Player or Gated Notice */}
-              {isReleased ? (
-                <div className="bg-[#050507] border border-[#C8A25A]/25 rounded-xl p-3.5 mb-5 flex flex-col gap-2.5">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[9px] font-mono tracking-[0.25em] text-[#C8A25A] uppercase">Active Player</p>
-                      <p className="text-xs font-cormorant font-semibold text-[#F3EEE7]">NOCTRA — 2:17 AM</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button onClick={onMute} className="text-[#A3B1C6] hover:text-[#F3EEE7] p-1" aria-label={isMuted ? 'Unmute' : 'Mute'}>
-                        {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-                      </button>
-                      <button
-                        onClick={onTogglePlay}
-                        className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
-                          isPlaying ? 'bg-[#C8A25A] text-black' : 'bg-white/10 text-white hover:bg-[#C8A25A] hover:text-black'
-                        }`}
-                        aria-label={isPlaying ? 'Pause' : 'Play'}
-                      >
-                        {isPlaying ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current ml-0.5" />}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-[#C8A25A] rounded-full transition-all" style={{ width: `${trackProgress}%` }} />
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-[#050507] border border-[#C8A25A]/20 rounded-xl p-3.5 mb-5 flex items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center gap-2 text-[#A3B1C6]/80 font-light">
-                    <span className="w-2 h-2 rounded-full bg-[#C8A25A] animate-pulse shrink-0" />
-                    <span>Releases Oct 16. Audio player unlocks automatically.</span>
-                  </div>
-                  <span className="text-[10px] font-mono text-[#C8A25A] shrink-0 font-semibold">PRE-SAVE</span>
-                </div>
-              )}
+              {/* SPOTIFY PLAYER EMBED (Replaces local audio file) */}
+              <div className="mb-5 overflow-hidden rounded-xl border border-[#C8A25A]/25 bg-[#050507] shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
+                <iframe
+                  style={{ borderRadius: '12px' }}
+                  src={SPOTIFY_EMBED_URL}
+                  width="100%"
+                  height="152"
+                  frameBorder="0"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                  title="Spotify Player - NOCTRA 2:17 AM"
+                />
+              </div>
             </div>
 
             {/* CTAs */}
             <div className="flex flex-col gap-3 pt-2">
               <div className="flex flex-wrap gap-2.5">
-                {isReleased ? (
-                  <button
-                    onClick={onTogglePlay}
-                    className="flex-1 flex items-center justify-center gap-2 bg-[#F3EEE7] hover:bg-[#C8A25A] text-black font-semibold py-2.5 px-4 rounded-full text-xs tracking-wider transition-all"
-                  >
-                    <Music className="w-3.5 h-3.5" /> LISTEN NOW
-                  </button>
-                ) : (
-                  <a
-                    href={SPOTIFY_PRE_SAVE_URL}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex-1 flex items-center justify-center gap-2 bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold py-2.5 px-4 rounded-full text-xs tracking-wider transition-all shadow-[0_4px_20px_rgba(29,185,84,0.3)]"
-                  >
-                    {Icons.spotify} PRE-SAVE ON SPOTIFY
-                  </a>
-                )}
+                <a
+                  href={SPOTIFY_TRACK_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex-1 flex items-center justify-center gap-2 bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold py-2.5 px-4 rounded-full text-xs tracking-wider transition-all shadow-[0_4px_20px_rgba(29,185,84,0.3)]"
+                >
+                  {Icons.spotify} OPEN IN SPOTIFY
+                </a>
                 <button
                   onClick={onOpenVideo}
                   className="flex items-center justify-center gap-2 border border-white/15 hover:border-[#C8A25A] text-[#F3EEE7] hover:text-[#C8A25A] py-2.5 px-4 rounded-full text-xs tracking-wider transition-all"
@@ -653,11 +538,11 @@ const ReleasesSection = ({
 
               {/* Streaming platform links */}
               <div className="flex items-center justify-between pt-1 border-t border-white/5 text-[10px] font-mono text-[#A3B1C6]/60">
-                <a href={SPOTIFY_ARTIST_URL} target="_blank" rel="noreferrer" className="hover:text-[#1DB954] transition-colors flex items-center gap-1">
-                  {Icons.spotify} Spotify Profile
+                <a href={SPOTIFY_TRACK_URL} target="_blank" rel="noreferrer" className="hover:text-[#1DB954] transition-colors flex items-center gap-1">
+                  {Icons.spotify} Track on Spotify
                 </a>
-                <a href="https://music.apple.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors flex items-center gap-1">
-                  {Icons.apple} Apple Music
+                <a href={SPOTIFY_ARTIST_URL} target="_blank" rel="noreferrer" className="hover:text-[#1DB954] transition-colors flex items-center gap-1">
+                  Artist Profile
                 </a>
                 <a href={YOUTUBE_URL} target="_blank" rel="noreferrer" className="hover:text-[#FF0000] transition-colors flex items-center gap-1">
                   {Icons.youtube} YouTube
@@ -779,20 +664,20 @@ const ReleasesSection = ({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[9px] font-mono tracking-widest text-[#C8A25A]">PHASE I</span>
-                  <span className={`text-[8px] font-mono px-2 py-0.5 rounded-full ${isReleased ? 'bg-[#C8A25A] text-black font-bold' : 'border border-[#C8A25A]/50 text-[#C8A25A]'}`}>
-                    {isReleased ? 'OUT NOW' : 'OCT 16'}
+                  <span className="text-[8px] font-mono px-2 py-0.5 rounded-full bg-[#1DB954] text-black font-bold">
+                    OUT NOW
                   </span>
                 </div>
                 <h4 className="font-cormorant font-bold text-lg text-[#F3EEE7]">2:17 AM</h4>
                 <p className="text-xs text-[#A3B1C6]/60 font-light mt-1">Lead Single & Official Video</p>
               </div>
               <a
-                href={isReleased ? '#home' : SPOTIFY_PRE_SAVE_URL}
-                target={isReleased ? '_self' : '_blank'}
+                href={SPOTIFY_TRACK_URL}
+                target="_blank"
                 rel="noreferrer"
-                className="text-[10px] font-mono text-[#C8A25A] hover:underline flex items-center gap-1"
+                className="text-[10px] font-mono text-[#1DB954] hover:underline flex items-center gap-1"
               >
-                {isReleased ? 'Listen Now' : 'Pre-Save Track'} <ArrowRight className="w-3 h-3" />
+                Stream on Spotify <ArrowRight className="w-3 h-3" />
               </a>
             </div>
 
@@ -1138,47 +1023,4 @@ const SiteFooter = () => (
       </p>
     </div>
   </footer>
-);
-
-/* ─────────────────────────────────────────────
-   MINI PLAYER (Floating bottom card)
-───────────────────────────────────────────── */
-const MiniPlayer = ({
-  isPlaying, progress, onToggle, onClose
-}: {
-  isPlaying: boolean;
-  progress: number;
-  onToggle: () => void;
-  onClose: () => void;
-}) => (
-  <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:w-72 z-40 bg-[#0C0C10]/95 border border-[#C8A25A]/30 backdrop-blur-xl rounded-xl p-3 shadow-[0_15px_40px_rgba(0,0,0,0.9)] flex flex-col gap-2">
-    <div className="flex items-center justify-between gap-3">
-      <div className="flex items-center gap-2.5 min-w-0">
-        <img
-          src="/capa_2_17_am.jpg"
-          alt="2:17 AM"
-          className="w-9 h-9 rounded-lg object-cover border border-[#C8A25A]/30 shrink-0"
-        />
-        <div className="min-w-0">
-          <p className="text-[8px] font-mono tracking-[0.2em] text-[#C8A25A] uppercase truncate">NOW PLAYING</p>
-          <p className="text-xs font-cormorant font-semibold text-[#F3EEE7] truncate">NOCTRA — 2:17 AM</p>
-        </div>
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
-        <button
-          onClick={onToggle}
-          className="w-8 h-8 rounded-full bg-[#C8A25A] text-black flex items-center justify-center hover:scale-105 transition-transform"
-          aria-label="Toggle Play"
-        >
-          {isPlaying ? <Pause className="w-3 h-3 fill-current" /> : <Play className="w-3 h-3 fill-current ml-0.5" />}
-        </button>
-        <button onClick={onClose} className="text-[#A3B1C6]/50 hover:text-[#F3EEE7] transition-colors p-1" aria-label="Close player">
-          <X className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
-    <div className="h-0.5 bg-white/10 rounded-full overflow-hidden">
-      <div className="h-full bg-[#C8A25A] rounded-full transition-all" style={{ width: `${progress}%` }} />
-    </div>
-  </div>
 );
