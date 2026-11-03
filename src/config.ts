@@ -49,7 +49,7 @@ export const LINKS_CONFIG: LinksConfig = {
 
   // 1. STREAMING & SOCIAL PROFILES (Easily editable)
   spotifyArtistUrl: "https://open.spotify.com/intl-es/artist/4501dvruPQPwODUjWkWpz4",
-  appleMusicArtistUrl: "https://music.apple.com",
+  appleMusicArtistUrl: "https://music.apple.com/es/album/2-17-am/6817391478?i=6817391482",
   youtubeChannelUrl: "https://youtube.com/@noctra_artist?si=us4X75Agv3icDT-Y",
   youtubeFeaturedVideoId: "TMnZQHayL2k",
   youtubeFeaturedVideoUrl: "https://youtu.be/TMnZQHayL2k",
@@ -91,7 +91,7 @@ export const LINKS_CONFIG: LinksConfig = {
       spotifyUrl: "https://open.spotify.com/intl-es/track/7ob3AKsKCbB1UpK2JJLbzx?si=2eb69c02317f4049",
       spotifyEmbedUrl:
         "https://open.spotify.com/embed/track/7ob3AKsKCbB1UpK2JJLbzx?utm_source=generator&theme=0",
-      appleMusicUrl: "https://music.apple.com",
+      appleMusicUrl: "https://music.apple.com/es/album/2-17-am/6817391478?i=6817391482",
       youtubeUrl: "https://youtu.be/TMnZQHayL2k",
       youtubeVisualizerId: "TMnZQHayL2k",
     },
