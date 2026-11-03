@@ -55,7 +55,7 @@ export const LINKS_CONFIG: LinksConfig = {
   youtubeFeaturedVideoUrl: "https://youtu.be/TMnZQHayL2k",
   instagramUrl: "https://www.instagram.com/noctra.artist",
   tiktokUrl: "https://www.tiktok.com/@noctramusic",
-  contactEmail: "press@noctraofficial.com",
+  contactEmail: "noctra.artist@gmail.com",
 
   // 2. OFFICIAL BIOGRAPHY
   officialBio:

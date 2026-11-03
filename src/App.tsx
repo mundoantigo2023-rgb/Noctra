@@ -1037,14 +1037,25 @@ const SiteFooter = () => (
         </a>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex flex-wrap justify-center gap-4 text-[10px] font-mono tracking-[0.2em] text-[#A3B1C6]/50">
+      {/* Navigation & Contact */}
+      <nav className="flex flex-wrap justify-center items-center gap-4 text-[10px] font-mono tracking-[0.2em] text-[#A3B1C6]/50">
         <a href="#home" className="hover:text-white transition-colors">HOME</a>
         <a href="#releases" className="hover:text-white transition-colors">RELEASES</a>
         <a href="#visualizer" className="hover:text-white transition-colors">VISUALIZER</a>
         <a href="#about" className="hover:text-white transition-colors">ABOUT</a>
-        <a href={`mailto:${LINKS_CONFIG.contactEmail}`} className="hover:text-[#d97706] transition-colors">CONTACT</a>
+        <a href={`mailto:${LINKS_CONFIG.contactEmail}`} className="hover:text-[#d97706] transition-colors">SUPPORT</a>
       </nav>
+
+      {/* Support Direct Link */}
+      <div className="pt-1">
+        <a
+          href={`mailto:${LINKS_CONFIG.contactEmail}`}
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/8 hover:border-[#d97706]/40 text-[#A3B1C6]/80 hover:text-[#d97706] text-[11px] font-mono tracking-wider transition-all"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-[#d97706]" />
+          <span>Support & Inquiries: {LINKS_CONFIG.contactEmail}</span>
+        </a>
+      </div>
 
       {/* Copyright */}
       <p className="font-cormorant italic text-[#F3EEE7]/35 text-xs tracking-wider">
