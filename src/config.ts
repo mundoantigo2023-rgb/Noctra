@@ -37,8 +37,8 @@ export interface AlbumTrackConfig {
   status: 'OUT NOW' | 'PRE-SAVE' | 'COMING SOON';
   isReleased: boolean;
   duration: string;
-  audioUrl?: string;
-  spotifyUrl?: string;
+  spotifyUrl: string;
+  spotifyEmbedUrl?: string;
   appleMusicUrl?: string;
   youtubeUrl?: string;
   preSaveUrl?: string;
@@ -173,8 +173,8 @@ export const LINKS_CONFIG: LinksConfig = {
         status: "OUT NOW",
         isReleased: true,
         duration: "3:24",
-        audioUrl: "/2_17_AM.wav",
         spotifyUrl: "https://open.spotify.com/intl-es/track/7ob3AKsKCbB1UpK2JJLbzx?si=2eb69c02317f4049",
+        spotifyEmbedUrl: "https://open.spotify.com/embed/track/7ob3AKsKCbB1UpK2JJLbzx?utm_source=generator&theme=0",
         appleMusicUrl: "https://music.apple.com/es/album/2-17-am/6817391478?i=6817391482",
         youtubeUrl: "https://youtu.be/TMnZQHayL2k",
         accentColor: "#3b82f6",
@@ -221,6 +221,9 @@ export const LINKS_CONFIG: LinksConfig = {
         status: "COMING SOON",
         isReleased: false,
         duration: "3:08",
+        spotifyUrl: "https://open.spotify.com/intl-es/artist/4501dvruPQPwODUjWkWpz4",
+        appleMusicUrl: "https://music.apple.com/es/artist/noctra/1841512361",
+        youtubeUrl: "https://youtube.com/@noctra_artist?si=us4X75Agv3icDT-Y",
         accentColor: "#2563eb",
         borderColor: "rgba(37, 99, 235, 0.35)",
         bgGlowClass: "from-[#1d4ed8]/20 via-[#050508]/80 to-[#050508]",
@@ -241,6 +244,9 @@ export const LINKS_CONFIG: LinksConfig = {
         status: "COMING SOON",
         isReleased: false,
         duration: "3:35",
+        spotifyUrl: "https://open.spotify.com/intl-es/artist/4501dvruPQPwODUjWkWpz4",
+        appleMusicUrl: "https://music.apple.com/es/artist/noctra/1841512361",
+        youtubeUrl: "https://youtube.com/@noctra_artist?si=us4X75Agv3icDT-Y",
         accentColor: "#38bdf8",
         borderColor: "rgba(56, 189, 248, 0.35)",
         bgGlowClass: "from-[#0284c7]/20 via-[#050508]/80 to-[#050508]",
@@ -261,6 +267,9 @@ export const LINKS_CONFIG: LinksConfig = {
         status: "COMING SOON",
         isReleased: false,
         duration: "2:58",
+        spotifyUrl: "https://open.spotify.com/intl-es/artist/4501dvruPQPwODUjWkWpz4",
+        appleMusicUrl: "https://music.apple.com/es/artist/noctra/1841512361",
+        youtubeUrl: "https://youtube.com/@noctra_artist?si=us4X75Agv3icDT-Y",
         accentColor: "#9f1239",
         borderColor: "rgba(159, 18, 57, 0.45)",
         bgGlowClass: "from-[#881337]/25 via-[#050508]/80 to-[#050508]",
@@ -281,6 +290,9 @@ export const LINKS_CONFIG: LinksConfig = {
         status: "COMING SOON",
         isReleased: false,
         duration: "3:19",
+        spotifyUrl: "https://open.spotify.com/intl-es/artist/4501dvruPQPwODUjWkWpz4",
+        appleMusicUrl: "https://music.apple.com/es/artist/noctra/1841512361",
+        youtubeUrl: "https://youtube.com/@noctra_artist?si=us4X75Agv3icDT-Y",
         accentColor: "#701a75",
         borderColor: "rgba(112, 26, 117, 0.45)",
         bgGlowClass: "from-[#701a75]/20 via-[#050508]/80 to-[#050508]",
@@ -301,6 +313,9 @@ export const LINKS_CONFIG: LinksConfig = {
         status: "COMING SOON",
         isReleased: false,
         duration: "3:04",
+        spotifyUrl: "https://open.spotify.com/intl-es/artist/4501dvruPQPwODUjWkWpz4",
+        appleMusicUrl: "https://music.apple.com/es/artist/noctra/1841512361",
+        youtubeUrl: "https://youtube.com/@noctra_artist?si=us4X75Agv3icDT-Y",
         accentColor: "#4c0519",
         borderColor: "rgba(76, 5, 25, 0.45)",
         bgGlowClass: "from-[#4c0519]/25 via-[#050508]/80 to-[#050508]",
@@ -321,6 +336,9 @@ export const LINKS_CONFIG: LinksConfig = {
         status: "COMING SOON",
         isReleased: false,
         duration: "3:41",
+        spotifyUrl: "https://open.spotify.com/intl-es/artist/4501dvruPQPwODUjWkWpz4",
+        appleMusicUrl: "https://music.apple.com/es/artist/noctra/1841512361",
+        youtubeUrl: "https://youtube.com/@noctra_artist?si=us4X75Agv3icDT-Y",
         accentColor: "#64748b",
         borderColor: "rgba(100, 116, 139, 0.4)",
         bgGlowClass: "from-[#334155]/20 via-[#050508]/80 to-[#050508]",
@@ -341,6 +359,9 @@ export const LINKS_CONFIG: LinksConfig = {
         status: "COMING SOON",
         isReleased: false,
         duration: "3:29",
+        spotifyUrl: "https://open.spotify.com/intl-es/artist/4501dvruPQPwODUjWkWpz4",
+        appleMusicUrl: "https://music.apple.com/es/artist/noctra/1841512361",
+        youtubeUrl: "https://youtube.com/@noctra_artist?si=us4X75Agv3icDT-Y",
         accentColor: "#c27803",
         borderColor: "rgba(194, 120, 3, 0.4)",
         bgGlowClass: "from-[#b45309]/20 via-[#050508]/80 to-[#050508]",
@@ -361,6 +382,9 @@ export const LINKS_CONFIG: LinksConfig = {
         status: "COMING SOON",
         isReleased: false,
         duration: "4:02",
+        spotifyUrl: "https://open.spotify.com/intl-es/artist/4501dvruPQPwODUjWkWpz4",
+        appleMusicUrl: "https://music.apple.com/es/artist/noctra/1841512361",
+        youtubeUrl: "https://youtube.com/@noctra_artist?si=us4X75Agv3icDT-Y",
         accentColor: "#d97706",
         borderColor: "rgba(217, 119, 6, 0.45)",
         bgGlowClass: "from-[#d97706]/20 via-[#050508]/80 to-[#050508]",

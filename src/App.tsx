@@ -724,24 +724,14 @@ const ReleasesSection = ({
 }) => {
   const album = LINKS_CONFIG.album;
 
-  // Audio Playback State
-  const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [audioCurrentTime, setAudioCurrentTime] = useState<number>(0);
-  const [audioDuration, setAudioDuration] = useState<number>(204);
-  const [volume, setVolume] = useState<number>(0.85);
-  const [isMuted, setIsMuted] = useState<boolean>(false);
-
   // Active track modal for full-screen cinematic viewer
   const [activeModalTrack, setActiveModalTrack] = useState<AlbumTrackConfig | null>(null);
 
   // Active navigator track indicator
   const [activeNavTrack, setActiveNavTrack] = useState<string>('01');
 
-  // Subtle toast notification for upcoming tracks
+  // Subtle toast notification for digital platforms / notifications
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Auto-dismiss toast
   useEffect(() => {
@@ -749,13 +739,6 @@ const ReleasesSection = ({
     const timer = setTimeout(() => setToastMessage(null), 4200);
     return () => clearTimeout(timer);
   }, [toastMessage]);
-
-  // Sync volume with audio element
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : volume;
-    }
-  }, [volume, isMuted]);
 
   // Escape key closes modal viewer
   useEffect(() => {
@@ -767,43 +750,6 @@ const ReleasesSection = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeModalTrack]);
 
-  const handleTogglePlay = (track: AlbumTrackConfig) => {
-    if (track.audioUrl) {
-      // Playable track (e.g. 2:17 AM)
-      if (playingTrackId === track.id) {
-        if (isPlaying) {
-          audioRef.current?.pause();
-          setIsPlaying(false);
-        } else {
-          audioRef.current?.play().then(() => setIsPlaying(true)).catch(() => {});
-        }
-      } else {
-        setPlayingTrackId(track.id);
-        setActiveNavTrack(track.number);
-        setAudioCurrentTime(0);
-        if (audioRef.current) {
-          audioRef.current.src = track.audioUrl;
-          audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
-        }
-      }
-    } else if (track.preSaveUrl) {
-      // Pre-save track (Two Cups)
-      window.open(track.preSaveUrl, '_blank');
-      setToastMessage(`Opening Pre-Save for "${track.title}" on Feature.fm...`);
-    } else {
-      // Unreleased album tracks
-      setToastMessage(`Track ${track.number} — "${track.title}" will unlock with the full album. Pre-save "Two Cups" or join the 2:17 Club for priority alerts.`);
-    }
-  };
-
-  const handleSeek = (fraction: number) => {
-    if (audioRef.current && playingTrackId) {
-      const targetTime = fraction * (audioDuration || 204);
-      audioRef.current.currentTime = targetTime;
-      setAudioCurrentTime(targetTime);
-    }
-  };
-
   const handleScrollToTrack = (trackNumber: string) => {
     setActiveNavTrack(trackNumber);
     const el = document.getElementById(`track-${trackNumber}`);
@@ -812,39 +758,10 @@ const ReleasesSection = ({
     }
   };
 
-  const formatTime = (secs: number) => {
-    if (isNaN(secs) || secs < 0) return '0:00';
-    const m = Math.floor(secs / 60);
-    const s = Math.floor(secs % 60);
-    return `${m}:${s < 10 ? '0' : ''}${s}`;
-  };
-
   return (
     <section id="releases" className="relative scroll-mt-16 py-20 sm:py-28 overflow-hidden border-t border-white/5">
       {/* Anchor for nav */}
       <span id="the-first-night" className="absolute -top-24 pointer-events-none" />
-
-      {/* Hidden real audio player */}
-      <audio
-        ref={audioRef}
-        preload="metadata"
-        onTimeUpdate={() => {
-          if (audioRef.current) {
-            setAudioCurrentTime(audioRef.current.currentTime);
-          }
-        }}
-        onLoadedMetadata={() => {
-          if (audioRef.current && audioRef.current.duration) {
-            setAudioDuration(audioRef.current.duration);
-          }
-        }}
-        onEnded={() => {
-          setIsPlaying(false);
-          setAudioCurrentTime(0);
-        }}
-        onPause={() => setIsPlaying(false)}
-        onPlay={() => setIsPlaying(true)}
-      />
 
       {/* Subtle overarching ambient lighting across the 3 phases */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-[#1e3a8a]/12 rounded-full blur-[140px] pointer-events-none" />
@@ -906,7 +823,7 @@ const ReleasesSection = ({
         <div className="sticky top-16 z-30 mb-12 sm:mb-16 py-3 px-2 bg-[#050508]/90 backdrop-blur-xl border-y border-white/8 -mx-4 sm:mx-0 sm:rounded-2xl">
           <div className="flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar px-2">
             {album.tracks.map((track) => {
-              const isCurrent = activeNavTrack === track.number || playingTrackId === track.id;
+              const isCurrent = activeNavTrack === track.number;
               return (
                 <button
                   key={track.number}
@@ -935,12 +852,7 @@ const ReleasesSection = ({
         {/* 3. THE 10 TRACK EXPERIENCES (Editorial Alternating Layout) */}
         <div className="flex flex-col gap-10 sm:gap-14">
           {album.tracks.map((track, index) => {
-            const isPlayingThis = playingTrackId === track.id && isPlaying;
-            const isSelectedThis = playingTrackId === track.id;
-            const progress = isSelectedThis && audioDuration > 0
-              ? audioCurrentTime / audioDuration
-              : 0;
-
+            const isTrackOut = track.status === 'OUT NOW';
             const isEven = index % 2 === 1;
 
             // Phase-based card container styling
@@ -953,12 +865,12 @@ const ReleasesSection = ({
                 key={track.id}
                 id={`track-${track.number}`}
                 className={`reveal rounded-3xl p-5 sm:p-8 transition-all duration-500 relative overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)] border ${phaseCardClass} ${
-                  isPlayingThis
-                    ? 'ring-1 ring-[#F3EEE7]/30 shadow-[0_0_50px_rgba(30,58,138,0.3)]'
+                  isTrackOut
+                    ? 'ring-1 ring-[#1DB954]/25 shadow-[0_0_50px_rgba(29,185,84,0.12)]'
                     : ''
                 }`}
                 style={{
-                  borderColor: isPlayingThis ? track.accentColor : undefined,
+                  borderColor: isTrackOut ? 'rgba(29, 185, 84, 0.35)' : undefined,
                 }}
               >
                 {/* Subtle phase ambient light corner */}
@@ -1118,103 +1030,90 @@ const ReleasesSection = ({
                       </div>
                     </div>
 
-                    {/* CUSTOM AUDIO WAVEFORM PLAYER EXPERIENCE */}
+                    {/* DIGITAL STREAMING & SPOTIFY PLAYER EXPERIENCE */}
                     <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-3">
                       
-                      {/* Player Top Controls Bar */}
-                      <div className="flex items-center justify-between gap-3">
-                        
-                        {/* Play/Action Button */}
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() => handleTogglePlay(track)}
-                            className={`flex items-center gap-2 py-2.5 px-4 rounded-full font-mono text-xs font-bold tracking-wider transition-all duration-300 shadow-md ${
-                              track.audioUrl
-                                ? isPlayingThis
-                                  ? 'bg-[#F3EEE7] text-black shadow-[0_0_20px_rgba(243,238,231,0.4)]'
-                                  : 'bg-[#1DB954] hover:bg-[#1ed760] text-black shadow-[0_0_20px_rgba(29,185,84,0.35)]'
-                                : track.preSaveUrl
-                                ? 'bg-[#d97706] hover:bg-[#b45309] text-black shadow-[0_0_20px_rgba(217,119,6,0.35)]'
-                                : 'bg-white/10 hover:bg-white/20 text-[#F3EEE7] border border-white/15'
-                            }`}
-                            aria-label={
-                              track.audioUrl
-                                ? isPlayingThis ? 'Pause Track' : 'Play Track'
-                                : track.preSaveUrl ? 'Pre-Save Track' : 'Coming Soon'
-                            }
-                          >
-                            {track.audioUrl ? (
-                              isPlayingThis ? (
-                                <>
-                                  <Pause className="w-3.5 h-3.5 fill-current" />
-                                  <span>PAUSE</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Play className="w-3.5 h-3.5 fill-current" />
-                                  <span>PLAY TRACK</span>
-                                </>
-                              )
-                            ) : track.preSaveUrl ? (
-                              <>
-                                <Sparkles className="w-3.5 h-3.5 fill-current" />
-                                <span>PRE-SAVE</span>
-                              </>
-                            ) : (
-                              <>
-                                <Clock className="w-3.5 h-3.5" />
-                                <span>COMING SOON</span>
-                              </>
-                            )}
-                          </button>
+                      {/* Official Spotify Embed Player (for released tracks like 2:17 AM) */}
+                      {track.spotifyEmbedUrl && (
+                        <div className="overflow-hidden rounded-2xl border border-[#1DB954]/30 bg-black/80 shadow-[0_4px_25px_rgba(29,185,84,0.18)] mb-1">
+                          <iframe
+                            style={{ borderRadius: '12px' }}
+                            src={track.spotifyEmbedUrl}
+                            width="100%"
+                            height="152"
+                            frameBorder="0"
+                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                            loading="lazy"
+                            title={`Spotify Stream - ${track.title}`}
+                          />
+                        </div>
+                      )}
 
-                          {/* Time progress display for active audio */}
+                      {/* Primary Platform Streaming Action */}
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          {track.status === 'OUT NOW' ? (
+                            <a
+                              href={track.spotifyUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="btn-spotify flex items-center gap-2 py-2.5 px-4 rounded-full font-mono text-xs font-bold tracking-wider shadow-md select-none"
+                            >
+                              {Icons.spotify}
+                              <span>STREAM ON SPOTIFY</span>
+                            </a>
+                          ) : track.status === 'PRE-SAVE' ? (
+                            <a
+                              href={track.preSaveUrl || track.spotifyUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center gap-2 py-2.5 px-4 rounded-full font-mono text-xs font-bold tracking-wider transition-all duration-300 shadow-md bg-[#d97706] hover:bg-[#b45309] text-black shadow-[0_0_20px_rgba(217,119,6,0.35)] select-none"
+                            >
+                              {Icons.spotify}
+                              <span>PRE-SAVE ON SPOTIFY</span>
+                            </a>
+                          ) : (
+                            <a
+                              href={track.spotifyUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={() => setToastMessage(`Track ${track.number} — "${track.title}" unlocks with the album. Opening Noctra on Spotify...`)}
+                              className="flex items-center gap-2 py-2.5 px-4 rounded-full font-mono text-xs font-semibold tracking-wider transition-all duration-300 bg-white/10 hover:bg-[#1DB954]/20 hover:text-[#1ed760] hover:border-[#1DB954]/40 text-[#F3EEE7] border border-white/15 select-none"
+                            >
+                              {Icons.spotify}
+                              <span>FOLLOW ON SPOTIFY</span>
+                            </a>
+                          )}
+
                           <span className="font-mono text-xs text-[#A3B1C6]/70">
-                            {isSelectedThis && track.audioUrl
-                              ? `${formatTime(audioCurrentTime)} / ${track.duration}`
-                              : track.duration}
+                            {track.duration}
                           </span>
                         </div>
-
-                        {/* Volume Control (when playing track) */}
-                        {isSelectedThis && track.audioUrl && (
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => setIsMuted(!isMuted)}
-                              className="text-[#A3B1C6] hover:text-white p-1 transition-colors"
-                              aria-label="Toggle mute"
-                            >
-                              {isMuted || volume === 0 ? (
-                                <VolumeX className="w-4 h-4 text-red-400" />
-                              ) : (
-                                <Volume2 className="w-4 h-4" />
-                              )}
-                            </button>
-                            <input
-                              type="range"
-                              min="0"
-                              max="1"
-                              step="0.05"
-                              value={isMuted ? 0 : volume}
-                              onChange={(e) => {
-                                setVolume(parseFloat(e.target.value));
-                                setIsMuted(false);
-                              }}
-                              className="w-16 sm:w-20 accent-[#d97706] cursor-pointer h-1 bg-white/20 rounded-lg"
-                              aria-label="Volume slider"
-                            />
-                          </div>
-                        )}
                       </div>
 
-                      {/* Waveform Visualizer */}
-                      <WaveformBars
-                        trackNumber={track.number}
-                        isPlaying={isPlayingThis}
-                        progress={progress}
-                        accentColor={track.accentColor}
-                        onSeek={isSelectedThis && track.audioUrl ? handleSeek : undefined}
-                      />
+                      {/* Minimal Acoustic Waveform Visualizer (Connected to Digital Platforms) */}
+                      <div
+                        onClick={() => {
+                          window.open(track.spotifyUrl, '_blank');
+                          setToastMessage(`Opening "${track.title}" on Spotify...`);
+                        }}
+                        className="cursor-pointer group/wave py-1"
+                        title={`Stream ${track.title} on Spotify`}
+                      >
+                        <WaveformBars
+                          trackNumber={track.number}
+                          isPlaying={track.status === 'OUT NOW'}
+                          progress={track.status === 'OUT NOW' ? 0.72 : 0.25}
+                          accentColor={track.status === 'OUT NOW' ? '#1DB954' : track.accentColor}
+                        />
+                        <div className="flex justify-between items-center text-[10px] font-mono text-[#A3B1C6]/50 group-hover/wave:text-[#1DB954] transition-colors mt-1">
+                          <span className="flex items-center gap-1.5">
+                            <span className={`w-1.5 h-1.5 rounded-full ${track.status === 'OUT NOW' ? 'bg-[#1DB954] animate-pulse' : 'bg-white/30'}`} />
+                            <span>Digital Streaming • Connected to Spotify</span>
+                          </span>
+                          <span className="underline decoration-dotted group-hover/wave:no-underline">Open Spotify</span>
+                        </div>
+                      </div>
 
                       {/* Direct External Links Row */}
                       <div className="flex items-center justify-between pt-1">
@@ -1449,32 +1348,66 @@ const ReleasesSection = ({
                   Visual concept: {activeModalTrack.visualDirection}
                 </p>
 
+                {/* Spotify Embedded Streaming Player inside Modal */}
+                {activeModalTrack.spotifyEmbedUrl && (
+                  <div className="rounded-xl overflow-hidden my-2 border border-[#1DB954]/30 shadow-md">
+                    <iframe
+                      src={activeModalTrack.spotifyEmbedUrl}
+                      width="100%"
+                      height="80"
+                      frameBorder="0"
+                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                      loading="lazy"
+                      title={`Spotify player for ${activeModalTrack.title}`}
+                    />
+                  </div>
+                )}
+
                 {/* Actions */}
                 <div className="pt-3 flex flex-wrap items-center gap-3">
-                  <button
-                    onClick={() => {
-                      handleTogglePlay(activeModalTrack);
-                      setActiveModalTrack(null);
-                    }}
-                    className="px-5 py-2.5 rounded-full bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold text-xs tracking-wider font-mono flex items-center gap-2 shadow-lg"
-                  >
-                    {activeModalTrack.audioUrl ? (
-                      <>
-                        <Play className="w-3.5 h-3.5 fill-current" />
-                        <span>LISTEN TO AUDIO</span>
-                      </>
-                    ) : activeModalTrack.preSaveUrl ? (
-                      <>
-                        <Sparkles className="w-3.5 h-3.5 fill-current" />
-                        <span>PRE-SAVE ON FEATURE.FM</span>
-                      </>
-                    ) : (
-                      <>
-                        <Clock className="w-3.5 h-3.5" />
-                        <span>PRE-SAVE ALBUM</span>
-                      </>
-                    )}
-                  </button>
+                  {activeModalTrack.status === 'OUT NOW' ? (
+                    <a
+                      href={activeModalTrack.spotifyUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-spotify px-5 py-2.5 rounded-full font-bold text-xs tracking-wider font-mono flex items-center gap-2 shadow-lg"
+                    >
+                      {Icons.spotify}
+                      <span>STREAM ON SPOTIFY</span>
+                    </a>
+                  ) : activeModalTrack.status === 'PRE-SAVE' ? (
+                    <a
+                      href={activeModalTrack.preSaveUrl || activeModalTrack.spotifyUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-5 py-2.5 rounded-full bg-[#d97706] hover:bg-[#b45309] text-black font-bold text-xs tracking-wider font-mono flex items-center gap-2 shadow-lg transition-colors"
+                    >
+                      {Icons.spotify}
+                      <span>PRE-SAVE ON SPOTIFY</span>
+                    </a>
+                  ) : (
+                    <a
+                      href={activeModalTrack.spotifyUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-5 py-2.5 rounded-full bg-white/10 hover:bg-[#1DB954]/20 hover:text-[#1ed760] hover:border-[#1DB954]/40 text-[#F3EEE7] border border-white/15 font-semibold text-xs tracking-wider font-mono flex items-center gap-2 transition-colors"
+                    >
+                      {Icons.spotify}
+                      <span>FOLLOW ON SPOTIFY</span>
+                    </a>
+                  )}
+
+                  {activeModalTrack.appleMusicUrl && (
+                    <a
+                      href={activeModalTrack.appleMusicUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-4 py-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white font-semibold text-xs tracking-wider font-mono flex items-center gap-1.5 border border-white/15"
+                    >
+                      {Icons.apple}
+                      <span>APPLE MUSIC</span>
+                    </a>
+                  )}
 
                   {activeModalTrack.youtubeUrl && (
                     <button
