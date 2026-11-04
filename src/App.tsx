@@ -973,12 +973,60 @@ const ReleasesSection = ({
                   {/* ARTWORK COLUMN */}
                   <div className="w-full lg:w-5/12 shrink-0 flex flex-col justify-between">
                     <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-white/12 shadow-2xl group">
-                      <img
-                        src={track.coverImage}
-                        alt={`NOCTRA Track ${track.number} — ${track.title} Cover`}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 brightness-95 contrast-105"
-                        loading="lazy"
-                      />
+                      {track.hasOfficialArtwork && track.coverImage ? (
+                        <img
+                          src={track.coverImage}
+                          alt={`NOCTRA Track ${track.number} — ${track.title} Cover`}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 brightness-95 contrast-105"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center relative overflow-hidden bg-gradient-to-b from-[#0c0f1d] via-[#070913] to-[#040408]">
+                          {/* Concentric subtle vinyl grooves */}
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+                            <div className="w-64 h-64 rounded-full border border-white/20" />
+                            <div className="w-48 h-48 rounded-full border border-white/20 absolute" />
+                            <div className="w-32 h-32 rounded-full border border-white/20 absolute" />
+                          </div>
+
+                          {/* Soft ambient center glow in track accent color */}
+                          <div
+                            className="absolute w-40 h-40 rounded-full blur-3xl pointer-events-none opacity-25"
+                            style={{ backgroundColor: track.accentColor }}
+                          />
+
+                          {/* Giant subtle watermark of track number */}
+                          <span className="absolute font-cinzel font-black text-7xl sm:text-8xl text-white/[0.04] select-none pointer-events-none">
+                            {track.number}
+                          </span>
+
+                          {/* Center Coming Soon Badge */}
+                          <div className="relative z-10 flex flex-col items-center gap-2.5">
+                            <div
+                              className="w-11 h-11 rounded-full flex items-center justify-center border shadow-lg backdrop-blur-md"
+                              style={{
+                                borderColor: track.borderColor,
+                                backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                              }}
+                            >
+                              <FlowerIcon className="w-5 h-5 text-[#d97706] animate-pulse" />
+                            </div>
+
+                            <div className="flex flex-col items-center">
+                              <span className="font-cinzel text-base sm:text-lg font-bold tracking-[0.28em] text-white">
+                                COMING SOON
+                              </span>
+                              <span className="text-[10px] font-mono tracking-[0.2em] text-[#d97706]/80 uppercase mt-0.5">
+                                OFFICIAL ARTWORK
+                              </span>
+                            </div>
+
+                            <p className="text-[10px] text-[#A3B1C6]/60 font-light max-w-[200px] leading-relaxed mt-1">
+                              Artwork unlocks with the full album release.
+                            </p>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Film grain vignette */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
@@ -1013,8 +1061,8 @@ const ReleasesSection = ({
                         <button
                           onClick={() => setActiveModalTrack(track)}
                           className="p-2 rounded-full bg-black/70 hover:bg-[#d97706] text-white hover:text-black backdrop-blur-md border border-white/15 transition-all duration-300"
-                          title="Open Fullscreen Artwork Viewer"
-                          aria-label={`View full-screen artwork for ${track.title}`}
+                          title="Open Fullscreen Story Viewer"
+                          aria-label={`View details for ${track.title}`}
                         >
                           <Maximize2 className="w-3.5 h-3.5" />
                         </button>
@@ -1308,13 +1356,61 @@ const ReleasesSection = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-center">
               
-              {/* Large Artwork */}
+              {/* Large Artwork or Coming Soon Placeholder */}
               <div className="relative aspect-square rounded-2xl overflow-hidden border border-white/15 shadow-2xl">
-                <img
-                  src={activeModalTrack.coverImage}
-                  alt={`${activeModalTrack.title} Artwork`}
-                  className="w-full h-full object-cover"
-                />
+                {activeModalTrack.hasOfficialArtwork && activeModalTrack.coverImage ? (
+                  <img
+                    src={activeModalTrack.coverImage}
+                    alt={`${activeModalTrack.title} Artwork`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center relative overflow-hidden bg-gradient-to-b from-[#0c0f1d] via-[#070913] to-[#040408]">
+                    {/* Concentric subtle vinyl grooves */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+                      <div className="w-64 h-64 rounded-full border border-white/20" />
+                      <div className="w-48 h-48 rounded-full border border-white/20 absolute" />
+                      <div className="w-32 h-32 rounded-full border border-white/20 absolute" />
+                    </div>
+
+                    {/* Soft ambient center glow in track accent color */}
+                    <div
+                      className="absolute w-44 h-44 rounded-full blur-3xl pointer-events-none opacity-25"
+                      style={{ backgroundColor: activeModalTrack.accentColor }}
+                    />
+
+                    {/* Giant subtle watermark of track number */}
+                    <span className="absolute font-cinzel font-black text-8xl text-white/[0.04] select-none pointer-events-none">
+                      {activeModalTrack.number}
+                    </span>
+
+                    {/* Center Coming Soon Badge */}
+                    <div className="relative z-10 flex flex-col items-center gap-3">
+                      <div
+                        className="w-12 h-12 rounded-full flex items-center justify-center border shadow-lg backdrop-blur-md"
+                        style={{
+                          borderColor: activeModalTrack.borderColor,
+                          backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                        }}
+                      >
+                        <FlowerIcon className="w-6 h-6 text-[#d97706] animate-pulse" />
+                      </div>
+
+                      <div className="flex flex-col items-center">
+                        <span className="font-cinzel text-lg font-bold tracking-[0.25em] text-white">
+                          COMING SOON
+                        </span>
+                        <span className="text-[10px] font-mono tracking-[0.2em] text-[#d97706]/80 uppercase mt-0.5">
+                          OFFICIAL ARTWORK
+                        </span>
+                      </div>
+
+                      <p className="text-[11px] text-[#A3B1C6]/60 font-light max-w-[210px] leading-relaxed">
+                        Artwork unlocks with the full album release.
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none" />
                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs font-mono">
                   <span className="bg-black/80 px-2.5 py-1 rounded text-[10px] text-[#d97706]">
