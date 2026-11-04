@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   X, Menu, Check, ChevronDown, ArrowRight,
-  ExternalLink, Sparkles, Disc3, Play
+  ExternalLink, Sparkles, Disc3, Play, Pause,
+  Volume2, VolumeX, Maximize2, Clock, Music
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { LINKS_CONFIG, SingleConfig } from './config';
+import { LINKS_CONFIG, SingleConfig, AlbumTrackConfig } from './config';
 
 /* ─────────────────────────────────────────────────────────────
    OFFICIAL BRAND ICONS & SYMBOLS
@@ -360,7 +361,7 @@ const Navbar = ({ onOpenReleases }: { onOpenReleases: () => void }) => {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-7 text-xs font-mono tracking-[0.2em] text-[#A3B1C6]">
-            <a href="#releases" className="hover:text-white transition-colors">RELEASES</a>
+            <a href="#the-first-night" className="hover:text-white transition-colors">THE FIRST NIGHT</a>
             <a href="#visualizer" className="hover:text-white transition-colors">VISUALIZER</a>
             <a href="#about" className="hover:text-white transition-colors">ABOUT</a>
             <a href="#community" className="hover:text-white transition-colors">CLUB</a>
@@ -387,7 +388,7 @@ const Navbar = ({ onOpenReleases }: { onOpenReleases: () => void }) => {
               {Icons.apple}
             </a>
             <a
-              href="#releases"
+              href="#the-first-night"
               onClick={onOpenReleases}
               className="ml-1 px-3.5 py-1.5 rounded-full border border-[#d97706]/40 hover:border-[#d97706] text-[#F3EEE7] hover:text-[#d97706] text-[10px] font-mono tracking-[0.2em] transition-all"
             >
@@ -414,7 +415,7 @@ const Navbar = ({ onOpenReleases }: { onOpenReleases: () => void }) => {
       >
         <div className="flex flex-col gap-3">
           {[
-            { label: 'RELEASES', href: '#releases' },
+            { label: 'THE FIRST NIGHT', href: '#the-first-night' },
             { label: 'VISUALIZER', href: '#visualizer' },
             { label: 'ABOUT NOCTRA', href: '#about' },
             { label: 'COMMUNITY', href: '#community' },
@@ -626,11 +627,11 @@ const HeroAboveTheFold = ({
 
         {/* Scroll down pill */}
         <a
-          href="#releases"
-          className="inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.25em] text-[#A3B1C6]/60 hover:text-[#d97706] transition-colors py-1"
+          href="#the-first-night"
+          className="inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.25em] text-[#A3B1C6]/70 hover:text-[#d97706] transition-colors py-1 group"
         >
-          <span>EXPLORE DISCOGRAPHY</span>
-          <ChevronDown className="w-3.5 h-3.5 animate-bounce" />
+          <span>EXPLORE "THE FIRST NIGHT"</span>
+          <ChevronDown className="w-3.5 h-3.5 group-hover:translate-y-0.5 transition-transform animate-bounce" />
         </a>
       </div>
     </section>
@@ -638,164 +639,785 @@ const HeroAboveTheFold = ({
 };
 
 /* ─────────────────────────────────────────────────────────────
-   3. RELEASES SECTION (Interactive Discography)
+   3. THE FIRST NIGHT — ALBUM EXPERIENCE (10 Tracks)
+   Expands and redesigns the existing album section into an
+   immersive cinematic journey from 2:17 AM to 5:47 AM.
 ───────────────────────────────────────────────────────────── */
+const WAVEFORM_PROFILES: Record<string, number[]> = {
+  '01': [24, 38, 52, 65, 58, 42, 70, 88, 94, 80, 66, 82, 96, 90, 62, 48, 76, 92, 86, 70, 52, 74, 90, 100, 82, 68, 56, 80, 85, 62, 48, 40, 52, 44, 32, 22],
+  '02': [20, 30, 44, 60, 78, 70, 54, 62, 84, 92, 76, 60, 72, 88, 96, 84, 68, 52, 70, 82, 90, 78, 64, 76, 88, 94, 80, 62, 50, 42, 54, 46, 36, 28, 22, 16],
+  '03': [26, 42, 58, 72, 68, 50, 60, 78, 90, 82, 64, 74, 88, 92, 80, 62, 54, 70, 84, 96, 88, 72, 60, 78, 90, 94, 78, 60, 48, 40, 46, 52, 42, 34, 26, 18],
+  '04': [22, 34, 48, 54, 70, 82, 74, 60, 68, 80, 90, 94, 82, 68, 56, 68, 80, 88, 92, 80, 66, 54, 72, 86, 98, 90, 74, 58, 46, 40, 50, 44, 36, 28, 20, 15],
+  '05': [32, 48, 64, 80, 92, 100, 88, 74, 86, 96, 100, 90, 78, 70, 84, 96, 100, 88, 74, 62, 80, 94, 100, 92, 80, 68, 82, 94, 88, 70, 54, 46, 40, 32, 24, 18],
+  '06': [18, 28, 40, 52, 66, 78, 70, 58, 64, 76, 88, 80, 68, 60, 72, 84, 90, 78, 64, 56, 70, 82, 88, 76, 62, 52, 66, 78, 72, 56, 44, 36, 46, 38, 28, 20],
+  '07': [25, 38, 50, 62, 74, 88, 78, 66, 72, 84, 92, 86, 72, 64, 78, 90, 94, 82, 68, 60, 74, 88, 96, 84, 70, 56, 70, 82, 76, 60, 48, 40, 50, 42, 32, 22],
+  '08': [20, 32, 46, 58, 70, 80, 72, 60, 68, 80, 88, 94, 82, 70, 58, 70, 82, 90, 94, 80, 66, 56, 72, 86, 92, 84, 70, 56, 44, 38, 48, 40, 32, 24, 18, 14],
+  '09': [22, 36, 50, 64, 78, 90, 82, 70, 76, 88, 96, 90, 78, 66, 80, 92, 98, 88, 74, 64, 78, 90, 96, 86, 72, 60, 74, 86, 80, 64, 50, 42, 52, 44, 34, 24],
+  '10': [24, 40, 54, 70, 84, 96, 92, 80, 88, 98, 100, 94, 82, 74, 86, 96, 100, 90, 78, 68, 82, 96, 100, 92, 80, 68, 82, 94, 88, 72, 56, 46, 54, 46, 36, 26],
+};
+
+const WaveformBars = ({
+  trackNumber,
+  isPlaying,
+  progress,
+  accentColor,
+  onSeek,
+}: {
+  trackNumber: string;
+  isPlaying: boolean;
+  progress: number;
+  accentColor: string;
+  onSeek?: (fraction: number) => void;
+}) => {
+  const bars = WAVEFORM_PROFILES[trackNumber] || WAVEFORM_PROFILES['01'];
+  
+  return (
+    <div
+      onClick={(e) => {
+        if (!onSeek) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const fraction = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        onSeek(fraction);
+      }}
+      className="flex items-center gap-[2.5px] sm:gap-[3px] h-9 w-full cursor-pointer py-1 select-none"
+      title="Click to seek position"
+      role="slider"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(progress * 100)}
+    >
+      {bars.map((height, i) => {
+        const barFraction = (i + 1) / bars.length;
+        const isPast = barFraction <= progress;
+        const animClass = isPlaying
+          ? i % 3 === 0
+            ? 'animate-waveform-slow'
+            : i % 3 === 1
+            ? 'animate-waveform-med'
+            : 'animate-waveform-fast'
+          : '';
+
+        return (
+          <div
+            key={i}
+            className="flex-1 rounded-full flex flex-col justify-end h-full"
+          >
+            <div
+              className={`w-full rounded-full transition-all duration-150 ${animClass}`}
+              style={{
+                height: `${height}%`,
+                backgroundColor: isPast ? '#F3EEE7' : 'rgba(243, 238, 231, 0.2)',
+                boxShadow: isPast && isPlaying ? `0 0 8px ${accentColor}` : 'none',
+              }}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const ReleasesSection = ({
   onOpenVideo,
 }: {
   onOpenVideo: (videoId: string) => void;
 }) => {
+  const album = LINKS_CONFIG.album;
+
+  // Audio Playback State
+  const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [audioCurrentTime, setAudioCurrentTime] = useState<number>(0);
+  const [audioDuration, setAudioDuration] = useState<number>(204);
+  const [volume, setVolume] = useState<number>(0.85);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+
+  // Active track modal for full-screen cinematic viewer
+  const [activeModalTrack, setActiveModalTrack] = useState<AlbumTrackConfig | null>(null);
+
+  // Active navigator track indicator
+  const [activeNavTrack, setActiveNavTrack] = useState<string>('01');
+
+  // Subtle toast notification for upcoming tracks
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Auto-dismiss toast
+  useEffect(() => {
+    if (!toastMessage) return;
+    const timer = setTimeout(() => setToastMessage(null), 4200);
+    return () => clearTimeout(timer);
+  }, [toastMessage]);
+
+  // Sync volume with audio element
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume;
+    }
+  }, [volume, isMuted]);
+
+  // Escape key closes modal viewer
+  useEffect(() => {
+    if (!activeModalTrack) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setActiveModalTrack(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeModalTrack]);
+
+  const handleTogglePlay = (track: AlbumTrackConfig) => {
+    if (track.audioUrl) {
+      // Playable track (e.g. 2:17 AM)
+      if (playingTrackId === track.id) {
+        if (isPlaying) {
+          audioRef.current?.pause();
+          setIsPlaying(false);
+        } else {
+          audioRef.current?.play().then(() => setIsPlaying(true)).catch(() => {});
+        }
+      } else {
+        setPlayingTrackId(track.id);
+        setActiveNavTrack(track.number);
+        setAudioCurrentTime(0);
+        if (audioRef.current) {
+          audioRef.current.src = track.audioUrl;
+          audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+        }
+      }
+    } else if (track.preSaveUrl) {
+      // Pre-save track (Two Cups)
+      window.open(track.preSaveUrl, '_blank');
+      setToastMessage(`Opening Pre-Save for "${track.title}" on Feature.fm...`);
+    } else {
+      // Unreleased album tracks
+      setToastMessage(`Track ${track.number} — "${track.title}" will unlock with the full album. Pre-save "Two Cups" or join the 2:17 Club for priority alerts.`);
+    }
+  };
+
+  const handleSeek = (fraction: number) => {
+    if (audioRef.current && playingTrackId) {
+      const targetTime = fraction * (audioDuration || 204);
+      audioRef.current.currentTime = targetTime;
+      setAudioCurrentTime(targetTime);
+    }
+  };
+
+  const handleScrollToTrack = (trackNumber: string) => {
+    setActiveNavTrack(trackNumber);
+    const el = document.getElementById(`track-${trackNumber}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  const formatTime = (secs: number) => {
+    if (isNaN(secs) || secs < 0) return '0:00';
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
   return (
-    <section id="releases" className="py-16 sm:py-20 border-t border-white/5 relative scroll-mt-16">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+    <section id="releases" className="relative scroll-mt-16 py-20 sm:py-28 overflow-hidden border-t border-white/5">
+      {/* Anchor for nav */}
+      <span id="the-first-night" className="absolute -top-24 pointer-events-none" />
+
+      {/* Hidden real audio player */}
+      <audio
+        ref={audioRef}
+        preload="metadata"
+        onTimeUpdate={() => {
+          if (audioRef.current) {
+            setAudioCurrentTime(audioRef.current.currentTime);
+          }
+        }}
+        onLoadedMetadata={() => {
+          if (audioRef.current && audioRef.current.duration) {
+            setAudioDuration(audioRef.current.duration);
+          }
+        }}
+        onEnded={() => {
+          setIsPlaying(false);
+          setAudioCurrentTime(0);
+        }}
+        onPause={() => setIsPlaying(false)}
+        onPlay={() => setIsPlaying(true)}
+      />
+
+      {/* Subtle overarching ambient lighting across the 3 phases */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-[#1e3a8a]/12 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-[45%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-[#881337]/10 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-[#d97706]/10 rounded-full blur-[160px] pointer-events-none" />
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
         
-        {/* Section Header */}
-        <div className="text-center mb-10 sm:mb-12 reveal">
-          <div className="inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.3em] text-[#d97706] uppercase mb-1.5">
-            <FlowerIcon className="w-3.5 h-3.5" />
-            <span>OFFICIAL RELEASES</span>
+        {/* 1. ALBUM EXPERIENCE HEADER */}
+        <div className="text-center mb-12 sm:mb-16 reveal">
+          <div className="inline-flex items-center gap-2 text-[10px] font-mono tracking-[0.35em] text-[#d97706] uppercase mb-2 bg-[#d97706]/10 px-3.5 py-1 rounded-full border border-[#d97706]/25">
+            <FlowerIcon className="w-3.5 h-3.5 text-[#d97706]" />
+            <span>NOCTRA • DEBUT ALBUM</span>
           </div>
-          <h2 className="font-cinzel font-bold text-2xl sm:text-3xl lg:text-4xl text-white tracking-wide">
-            DISCOGRAPHY
+
+          <h2 className="font-cinzel font-bold text-3xl sm:text-5xl lg:text-6xl text-white tracking-wider mb-3">
+            {album.title}
           </h2>
-          <p className="font-cormorant italic text-sm sm:text-base text-[#A3B1C6]/70 mt-1 max-w-md mx-auto">
-            Music for the silence of 2 AM and the cold morning after.
+
+          <p className="font-cormorant italic text-lg sm:text-2xl text-[#F3EEE7]/90 max-w-xl mx-auto leading-relaxed">
+            "{album.subtitle}"
           </p>
+
+          <p className="text-xs sm:text-sm text-[#A3B1C6]/70 font-light mt-2 max-w-lg mx-auto">
+            {album.supportingCopy}
+          </p>
+
+          {/* Timeline Overview Strip */}
+          <div className="mt-8 max-w-2xl mx-auto p-4 rounded-2xl bg-black/40 border border-white/8 backdrop-blur-md">
+            <div className="flex items-center justify-between text-[10px] font-mono tracking-widest text-[#A3B1C6]/70 uppercase mb-2">
+              <span className="flex items-center gap-1.5 text-blue-300">
+                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                Phase I • 2:17 AM
+              </span>
+              <span className="flex items-center gap-1.5 text-rose-300">
+                <span className="w-2 h-2 rounded-full bg-rose-600" />
+                Phase II • 4:11 AM
+              </span>
+              <span className="flex items-center gap-1.5 text-amber-300">
+                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                Phase III • 5:47 AM
+              </span>
+            </div>
+            
+            {/* Gradient Journey Bar */}
+            <div className="w-full h-1.5 rounded-full bg-gradient-to-r from-[#1e3a8a] via-[#881337] to-[#d97706] shadow-sm relative overflow-hidden">
+              <div className="absolute inset-0 bg-white/20 animate-pulse" />
+            </div>
+
+            <div className="flex justify-between items-center text-[9px] font-mono text-[#A3B1C6]/50 mt-2">
+              <span>Midnight Isolation (Tracks 01–04)</span>
+              <span>Cold Detachment (Tracks 05–08)</span>
+              <span>The First Light (Tracks 09–10)</span>
+            </div>
+          </div>
         </div>
 
-        {/* 2-Column Singles Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch">
-          {LINKS_CONFIG.singles.map((single) => {
-            const isTwoCups = single.id === 'two-cups';
+        {/* 2. HORIZONTAL TRACK NAVIGATOR (01 - 10) */}
+        <div className="sticky top-16 z-30 mb-12 sm:mb-16 py-3 px-2 bg-[#050508]/90 backdrop-blur-xl border-y border-white/8 -mx-4 sm:mx-0 sm:rounded-2xl">
+          <div className="flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar px-2">
+            {album.tracks.map((track) => {
+              const isCurrent = activeNavTrack === track.number || playingTrackId === track.id;
+              return (
+                <button
+                  key={track.number}
+                  onClick={() => handleScrollToTrack(track.number)}
+                  className={`shrink-0 flex items-center gap-1.5 py-1.5 px-3 rounded-full transition-all duration-300 font-mono text-xs border ${
+                    isCurrent
+                      ? 'bg-[#F3EEE7] text-black font-bold shadow-[0_0_20px_rgba(243,238,231,0.3)] border-[#F3EEE7]'
+                      : 'bg-white/5 text-[#A3B1C6] hover:text-white border-white/8 hover:border-white/20'
+                  }`}
+                  aria-label={`Scroll to Track ${track.number} - ${track.title}`}
+                >
+                  <span>{track.number}</span>
+                  <span className="hidden md:inline text-[10px] opacity-70">
+                    {track.title}
+                  </span>
+                  <span
+                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{ backgroundColor: track.accentColor }}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 3. THE 10 TRACK EXPERIENCES (Editorial Alternating Layout) */}
+        <div className="flex flex-col gap-10 sm:gap-14">
+          {album.tracks.map((track, index) => {
+            const isPlayingThis = playingTrackId === track.id && isPlaying;
+            const isSelectedThis = playingTrackId === track.id;
+            const progress = isSelectedThis && audioDuration > 0
+              ? audioCurrentTime / audioDuration
+              : 0;
+
+            const isEven = index % 2 === 1;
+
+            // Phase-based card container styling
+            let phaseCardClass = 'glass-card-blue';
+            if (track.phase === 'cold-darkness') phaseCardClass = 'glass-card-burgundy';
+            if (track.phase === 'dawn') phaseCardClass = 'glass-card-dawn';
+
             return (
               <div
-                key={single.id}
-                className={`reveal rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.9)] ${
-                  isTwoCups ? 'glass-card-amber' : 'glass-card-blue'
+                key={track.id}
+                id={`track-${track.number}`}
+                className={`reveal rounded-3xl p-5 sm:p-8 transition-all duration-500 relative overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)] border ${phaseCardClass} ${
+                  isPlayingThis
+                    ? 'ring-1 ring-[#F3EEE7]/30 shadow-[0_0_50px_rgba(30,58,138,0.3)]'
+                    : ''
                 }`}
+                style={{
+                  borderColor: isPlayingThis ? track.accentColor : undefined,
+                }}
               >
-                <div>
-                  {/* Card Header Badge */}
-                  <div className="flex items-center justify-between mb-3.5">
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[9px] font-mono px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                        isTwoCups
-                          ? 'bg-[#d97706] text-black'
-                          : 'bg-[#1e3a8a] text-blue-200 border border-blue-400/30'
-                      }`}>
-                        {single.tag}
-                      </span>
-                      <span className="text-[9px] font-mono text-[#d97706] tracking-wider uppercase">
-                        {single.badge}
-                      </span>
-                    </div>
-                    <span className="text-[10px] font-mono text-[#A3B1C6]/50">2026</span>
-                  </div>
+                {/* Subtle phase ambient light corner */}
+                <div
+                  className={`absolute -top-24 ${isEven ? '-left-24' : '-right-24'} w-72 h-72 rounded-full blur-3xl pointer-events-none opacity-40`}
+                  style={{ backgroundColor: track.accentColor }}
+                />
 
-                  {/* Artwork Cover */}
-                  <div className="relative aspect-square w-full rounded-xl overflow-hidden mb-4 border border-white/10 group shadow-md">
-                    <img
-                      src={single.coverImage}
-                      alt={`${single.title} Cover Artwork`}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none" />
-                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs font-mono">
-                      <span className="bg-black/70 backdrop-blur-md px-2 py-0.5 rounded text-[10px] tracking-wider text-[#d97706]">
-                        NOCTRA • {single.title.toUpperCase()}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Title & Official Subtitle */}
-                  <h3 className="font-cinzel font-bold text-xl sm:text-2xl text-white mb-2">
-                    {single.title}
-                  </h3>
-                  <p className="font-cormorant italic text-sm sm:text-base text-[#F3EEE7]/90 leading-relaxed mb-2.5">
-                    "{single.subtitle}"
-                  </p>
-                  <p className="text-xs text-[#A3B1C6]/70 font-light leading-relaxed mb-4">
-                    {single.description}
-                  </p>
-
-                  {/* Pre-save announcement box for unreleased single */}
-                  {!single.isReleased && (
-                    <a
-                      href={single.preSaveUrl || single.spotifyUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mb-4 p-3.5 rounded-xl bg-[#d97706]/10 border border-[#d97706]/30 hover:border-[#d97706] hover:bg-[#d97706]/15 transition-all flex items-center justify-between gap-3 group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Sparkles className="w-4 h-4 text-[#d97706] shrink-0 animate-pulse" />
-                        <div className="text-left">
-                          <p className="text-[11px] font-mono font-semibold text-[#d97706] uppercase tracking-wider flex items-center gap-1.5">
-                            <span>Releasing November 13, 2026</span>
-                            <span className="text-[9px] bg-[#d97706] text-black px-1.5 py-0.5 rounded font-bold leading-none">PRE-SAVE LIVE</span>
-                          </p>
-                          <p className="text-[10px] text-[#F3EEE7]/80 font-light leading-snug mt-0.5">
-                            Tap to pre-save now on Spotify, Apple Music & more via Feature.fm.
-                          </p>
-                        </div>
-                      </div>
-                      <ArrowRight className="w-4 h-4 text-[#d97706] group-hover:translate-x-1 transition-transform shrink-0" />
-                    </a>
-                  )}
-
-                  {/* Spotify Player Embed (for released singles like 2:17 AM) */}
-                  {single.spotifyEmbedUrl && (
-                    <div className="mb-4 overflow-hidden rounded-xl border border-white/10 bg-black/60 shadow-inner">
-                      <iframe
-                        style={{ borderRadius: '12px' }}
-                        src={single.spotifyEmbedUrl}
-                        width="100%"
-                        height="152"
-                        frameBorder="0"
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                {/* Editorial Track Layout */}
+                <div className={`flex flex-col ${isEven ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-stretch gap-6 sm:gap-10 relative z-10`}>
+                  
+                  {/* ARTWORK COLUMN */}
+                  <div className="w-full lg:w-5/12 shrink-0 flex flex-col justify-between">
+                    <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-white/12 shadow-2xl group">
+                      <img
+                        src={track.coverImage}
+                        alt={`NOCTRA Track ${track.number} — ${track.title} Cover`}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 brightness-95 contrast-105"
                         loading="lazy"
-                        title={`Spotify Player - ${single.title}`}
                       />
-                    </div>
-                  )}
-                </div>
 
-                {/* Card Action Buttons */}
-                <div className="flex flex-col gap-2.5 pt-2 border-t border-white/8">
-                  <div className="flex flex-wrap gap-2">
-                    <a
-                      href={single.spotifyUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex-1 py-2.5 px-3.5 rounded-xl bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold text-xs tracking-wider flex items-center justify-center gap-2 transition-all shadow-[0_4px_20px_rgba(29,185,84,0.3)]"
-                    >
-                      {Icons.spotify}
-                      <span>{single.isReleased ? 'SPOTIFY' : 'PRE-SAVE'}</span>
-                    </a>
-                    <a
-                      href={single.appleMusicUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex-1 py-2.5 px-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs tracking-wider flex items-center justify-center gap-2 border border-white/15 transition-all"
-                    >
-                      {Icons.apple}
-                      <span>{single.isReleased ? 'APPLE MUSIC' : 'PRE-ADD'}</span>
-                    </a>
-                    <button
-                      onClick={() => onOpenVideo(single.youtubeVisualizerId)}
-                      className="py-2.5 px-3.5 rounded-xl border border-[#FF0000]/40 hover:border-[#FF0000] bg-[#FF0000]/15 hover:bg-[#FF0000]/30 text-white font-semibold text-xs tracking-wider flex items-center justify-center gap-1.5 transition-all"
-                      aria-label={`Watch ${single.title} visualizer`}
-                    >
-                      {Icons.youtube}
-                      <span className="hidden sm:inline">{single.isReleased ? 'VIDEO' : 'TEASER'}</span>
-                    </button>
+                      {/* Film grain vignette */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
+
+                      {/* Top badges on artwork */}
+                      <div className="absolute top-3 left-3 right-3 flex items-center justify-between text-xs font-mono">
+                        <span className="bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] tracking-widest text-[#F3EEE7]/90 border border-white/10 flex items-center gap-1.5">
+                          <span
+                            className="w-1.5 h-1.5 rounded-full"
+                            style={{ backgroundColor: track.accentColor }}
+                          />
+                          {track.timecode}
+                        </span>
+
+                        <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                          track.status === 'OUT NOW'
+                            ? 'bg-[#1DB954] text-black shadow-md'
+                            : track.status === 'PRE-SAVE'
+                            ? 'bg-[#d97706] text-black shadow-md'
+                            : 'bg-white/10 text-white/80 border border-white/15'
+                        }`}>
+                          {track.status}
+                        </span>
+                      </div>
+
+                      {/* Bottom title & Zoom trigger button */}
+                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                        <span className="bg-black/80 backdrop-blur-md px-3 py-1 rounded-lg text-[10px] font-mono tracking-widest text-[#F3EEE7]">
+                          NOCTRA • {track.number}
+                        </span>
+
+                        <button
+                          onClick={() => setActiveModalTrack(track)}
+                          className="p-2 rounded-full bg-black/70 hover:bg-[#d97706] text-white hover:text-black backdrop-blur-md border border-white/15 transition-all duration-300"
+                          title="Open Fullscreen Artwork Viewer"
+                          aria-label={`View full-screen artwork for ${track.title}`}
+                        >
+                          <Maximize2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Mood Pill on Desktop */}
+                    <div className="hidden lg:flex items-center gap-1.5 text-[10px] font-mono text-[#A3B1C6]/60 mt-3 capitalize">
+                      <FlowerIcon className="w-3 h-3 text-[#d97706]/70" />
+                      <span>{track.mood}</span>
+                    </div>
                   </div>
+
+                  {/* EDITORIAL INFORMATION & AUDIO PLAYER COLUMN */}
+                  <div className="w-full lg:w-7/12 flex flex-col justify-between">
+                    <div>
+                      {/* Track Meta Header */}
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-mono tracking-[0.25em] text-[#d97706] uppercase">
+                            {track.phaseLabel}
+                          </span>
+                          <span className="text-white/20">•</span>
+                          <span className="text-[10px] font-mono text-[#A3B1C6]/70">
+                            {track.duration}
+                          </span>
+                        </div>
+                        <span className="font-cinzel text-xs font-bold text-white/30 tracking-widest">
+                          {track.number} / 10
+                        </span>
+                      </div>
+
+                      {/* Song Title */}
+                      <h3 className="font-cinzel font-bold text-2xl sm:text-3xl lg:text-4xl text-white tracking-wide mb-3">
+                        {track.title}
+                      </h3>
+
+                      {/* Emotional Description */}
+                      <p className="text-xs sm:text-sm text-[#A3B1C6]/90 font-light leading-relaxed mb-5">
+                        {track.description}
+                      </p>
+
+                      {/* VISUAL STORYTELLING LYRIC QUOTE */}
+                      <div className="my-5 sm:my-6 p-4 sm:p-5 rounded-2xl bg-black/45 border-l-2 relative overflow-hidden"
+                        style={{ borderLeftColor: track.accentColor }}
+                      >
+                        <p className="font-cormorant italic font-semibold text-lg sm:text-xl md:text-2xl text-[#F3EEE7] tracking-wide leading-snug">
+                          “{track.lyricQuote}”
+                        </p>
+                        <span className="block text-[9px] font-mono uppercase tracking-[0.25em] text-[#d97706]/80 mt-2">
+                          NOCTRA • OFFICIAL LYRICS
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* CUSTOM AUDIO WAVEFORM PLAYER EXPERIENCE */}
+                    <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-3">
+                      
+                      {/* Player Top Controls Bar */}
+                      <div className="flex items-center justify-between gap-3">
+                        
+                        {/* Play/Action Button */}
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => handleTogglePlay(track)}
+                            className={`flex items-center gap-2 py-2.5 px-4 rounded-full font-mono text-xs font-bold tracking-wider transition-all duration-300 shadow-md ${
+                              track.audioUrl
+                                ? isPlayingThis
+                                  ? 'bg-[#F3EEE7] text-black shadow-[0_0_20px_rgba(243,238,231,0.4)]'
+                                  : 'bg-[#1DB954] hover:bg-[#1ed760] text-black shadow-[0_0_20px_rgba(29,185,84,0.35)]'
+                                : track.preSaveUrl
+                                ? 'bg-[#d97706] hover:bg-[#b45309] text-black shadow-[0_0_20px_rgba(217,119,6,0.35)]'
+                                : 'bg-white/10 hover:bg-white/20 text-[#F3EEE7] border border-white/15'
+                            }`}
+                            aria-label={
+                              track.audioUrl
+                                ? isPlayingThis ? 'Pause Track' : 'Play Track'
+                                : track.preSaveUrl ? 'Pre-Save Track' : 'Coming Soon'
+                            }
+                          >
+                            {track.audioUrl ? (
+                              isPlayingThis ? (
+                                <>
+                                  <Pause className="w-3.5 h-3.5 fill-current" />
+                                  <span>PAUSE</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Play className="w-3.5 h-3.5 fill-current" />
+                                  <span>PLAY TRACK</span>
+                                </>
+                              )
+                            ) : track.preSaveUrl ? (
+                              <>
+                                <Sparkles className="w-3.5 h-3.5 fill-current" />
+                                <span>PRE-SAVE</span>
+                              </>
+                            ) : (
+                              <>
+                                <Clock className="w-3.5 h-3.5" />
+                                <span>COMING SOON</span>
+                              </>
+                            )}
+                          </button>
+
+                          {/* Time progress display for active audio */}
+                          <span className="font-mono text-xs text-[#A3B1C6]/70">
+                            {isSelectedThis && track.audioUrl
+                              ? `${formatTime(audioCurrentTime)} / ${track.duration}`
+                              : track.duration}
+                          </span>
+                        </div>
+
+                        {/* Volume Control (when playing track) */}
+                        {isSelectedThis && track.audioUrl && (
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => setIsMuted(!isMuted)}
+                              className="text-[#A3B1C6] hover:text-white p-1 transition-colors"
+                              aria-label="Toggle mute"
+                            >
+                              {isMuted || volume === 0 ? (
+                                <VolumeX className="w-4 h-4 text-red-400" />
+                              ) : (
+                                <Volume2 className="w-4 h-4" />
+                              )}
+                            </button>
+                            <input
+                              type="range"
+                              min="0"
+                              max="1"
+                              step="0.05"
+                              value={isMuted ? 0 : volume}
+                              onChange={(e) => {
+                                setVolume(parseFloat(e.target.value));
+                                setIsMuted(false);
+                              }}
+                              className="w-16 sm:w-20 accent-[#d97706] cursor-pointer h-1 bg-white/20 rounded-lg"
+                              aria-label="Volume slider"
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Waveform Visualizer */}
+                      <WaveformBars
+                        trackNumber={track.number}
+                        isPlaying={isPlayingThis}
+                        progress={progress}
+                        accentColor={track.accentColor}
+                        onSeek={isSelectedThis && track.audioUrl ? handleSeek : undefined}
+                      />
+
+                      {/* Direct External Links Row */}
+                      <div className="flex items-center justify-between pt-1">
+                        <div className="flex items-center gap-3 text-xs font-mono text-[#A3B1C6]/70">
+                          {track.spotifyUrl && (
+                            <a
+                              href={track.spotifyUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="hover:text-[#1DB954] transition-colors flex items-center gap-1"
+                              title="Listen / Pre-Save on Spotify"
+                            >
+                              {Icons.spotify}
+                              <span className="hidden sm:inline">Spotify</span>
+                            </a>
+                          )}
+
+                          {track.appleMusicUrl && (
+                            <a
+                              href={track.appleMusicUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="hover:text-white transition-colors flex items-center gap-1"
+                              title="Apple Music"
+                            >
+                              {Icons.apple}
+                              <span className="hidden sm:inline">Apple</span>
+                            </a>
+                          )}
+
+                          {track.youtubeUrl && (
+                            <button
+                              onClick={() => onOpenVideo(LINKS_CONFIG.youtubeFeaturedVideoId)}
+                              className="hover:text-[#FF0000] transition-colors flex items-center gap-1"
+                              title="Watch Visualizer"
+                            >
+                              {Icons.youtube}
+                              <span className="hidden sm:inline">Visualizer</span>
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Fullscreen Art Trigger */}
+                        <button
+                          onClick={() => setActiveModalTrack(track)}
+                          className="text-[10px] font-mono tracking-wider text-[#A3B1C6]/60 hover:text-[#d97706] transition-colors flex items-center gap-1"
+                        >
+                          <span>EXPAND STORY</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </button>
+                      </div>
+
+                    </div>
+
+                  </div>
+
                 </div>
               </div>
             );
           })}
         </div>
 
+        {/* 4. FINAL ALBUM MOMENT (Quiet Cinematic Ending) */}
+        <div className="mt-20 sm:mt-28 reveal text-center p-8 sm:p-14 rounded-3xl relative overflow-hidden border border-amber-900/35 bg-gradient-to-b from-[#070914] via-[#100c1c] to-[#1c1214] shadow-2xl">
+          {/* Subtle dawn background glow */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#d97706]/15 via-[#881337]/5 to-transparent pointer-events-none" />
+          
+          <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
+            <div className="inline-flex items-center gap-2 text-[10px] font-mono tracking-[0.35em] text-[#d97706] uppercase mb-3">
+              <FlowerIcon className="w-3.5 h-3.5 text-[#d97706]" />
+              <span>THE FIRST NIGHT • COMPLETE VOYAGE</span>
+            </div>
+            
+            <h3 className="font-cinzel font-bold text-3xl sm:text-5xl text-white tracking-wider mb-2">
+              {album.timelineStart} → {album.timelineEnd}
+            </h3>
+            
+            <p className="font-cormorant italic text-xl sm:text-2xl text-[#d97706] mb-4">
+              “One night changed everything.”
+            </p>
+            
+            <p className="text-xs sm:text-sm text-[#A3B1C6]/80 font-light leading-relaxed max-w-lg mb-8">
+              Ten songs born from the silence after everyone leaves. From the suffocating tension of late-night memory to the quiet survival of first light.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full sm:w-auto">
+              <a
+                href={LINKS_CONFIG.spotifyArtistUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold text-xs font-mono tracking-wider transition-all shadow-[0_4px_25px_rgba(29,185,84,0.35)] flex items-center justify-center gap-2"
+              >
+                {Icons.spotify}
+                <span>LISTEN TO THE ALBUM</span>
+              </a>
+              
+              <button
+                onClick={() => onOpenVideo(LINKS_CONFIG.youtubeFeaturedVideoId)}
+                className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold text-xs font-mono tracking-wider transition-all border border-white/15 flex items-center justify-center gap-2"
+              >
+                {Icons.youtube}
+                <span>WATCH NOCTRA</span>
+              </button>
+              
+              <a
+                href="#community"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-full border border-[#d97706]/40 hover:border-[#d97706] bg-[#d97706]/10 hover:bg-[#d97706]/20 text-[#d97706] hover:text-white font-semibold text-xs font-mono tracking-wider transition-all flex items-center justify-center gap-2"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>JOIN THE 2:17 CLUB</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
       </div>
+
+      {/* 5. FULL-SCREEN CINEMATIC ARTWORK MODAL VIEWER */}
+      {activeModalTrack && (
+        <div
+          className="fixed inset-0 z-50 bg-[#050508]/95 backdrop-blur-2xl flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Cinematic viewer for ${activeModalTrack.title}`}
+          onClick={() => setActiveModalTrack(null)}
+        >
+          <div
+            className="relative w-full max-w-3xl glass-card rounded-3xl p-6 sm:p-8 border border-white/15 shadow-[0_30px_90px_rgba(0,0,0,1)] my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setActiveModalTrack(null)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/20 text-[#A3B1C6] hover:text-white transition-colors"
+              aria-label="Close viewer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-center">
+              
+              {/* Large Artwork */}
+              <div className="relative aspect-square rounded-2xl overflow-hidden border border-white/15 shadow-2xl">
+                <img
+                  src={activeModalTrack.coverImage}
+                  alt={`${activeModalTrack.title} Artwork`}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs font-mono">
+                  <span className="bg-black/80 px-2.5 py-1 rounded text-[10px] text-[#d97706]">
+                    TRACK {activeModalTrack.number}
+                  </span>
+                  <span className="text-white/70 text-[10px]">
+                    {activeModalTrack.timecode}
+                  </span>
+                </div>
+              </div>
+
+              {/* Story Details */}
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono tracking-widest text-[#d97706] uppercase">
+                    {activeModalTrack.phaseLabel}
+                  </span>
+                </div>
+
+                <h3 className="font-cinzel font-bold text-2xl sm:text-3xl text-white">
+                  {activeModalTrack.title}
+                </h3>
+
+                <p className="text-xs sm:text-sm text-[#A3B1C6]/90 font-light leading-relaxed">
+                  {activeModalTrack.description}
+                </p>
+
+                {/* Lyric typography centerpiece */}
+                <div className="p-4 rounded-xl bg-white/5 border-l-2 border-[#d97706] my-2">
+                  <p className="font-cormorant italic text-lg sm:text-xl text-[#F3EEE7]">
+                    “{activeModalTrack.lyricQuote}”
+                  </p>
+                </div>
+
+                <p className="text-[11px] text-[#A3B1C6]/60 font-light italic">
+                  Visual concept: {activeModalTrack.visualDirection}
+                </p>
+
+                {/* Actions */}
+                <div className="pt-3 flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={() => {
+                      handleTogglePlay(activeModalTrack);
+                      setActiveModalTrack(null);
+                    }}
+                    className="px-5 py-2.5 rounded-full bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold text-xs tracking-wider font-mono flex items-center gap-2 shadow-lg"
+                  >
+                    {activeModalTrack.audioUrl ? (
+                      <>
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        <span>LISTEN TO AUDIO</span>
+                      </>
+                    ) : activeModalTrack.preSaveUrl ? (
+                      <>
+                        <Sparkles className="w-3.5 h-3.5 fill-current" />
+                        <span>PRE-SAVE ON FEATURE.FM</span>
+                      </>
+                    ) : (
+                      <>
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>PRE-SAVE ALBUM</span>
+                      </>
+                    )}
+                  </button>
+
+                  {activeModalTrack.youtubeUrl && (
+                    <button
+                      onClick={() => {
+                        setActiveModalTrack(null);
+                        onOpenVideo(LINKS_CONFIG.youtubeFeaturedVideoId);
+                      }}
+                      className="px-4 py-2.5 rounded-full bg-[#FF0000]/20 hover:bg-[#FF0000]/30 text-white font-semibold text-xs tracking-wider font-mono flex items-center gap-1.5 border border-[#FF0000]/40"
+                    >
+                      {Icons.youtube}
+                      <span>VISUALIZER</span>
+                    </button>
+                  )}
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. TOAST NOTIFICATION FOR UNRELEASED TRACKS */}
+      {toastMessage && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-md w-[92%] bg-[#080B14]/95 border border-[#d97706]/40 text-[#F3EEE7] px-4 py-3 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.85)] backdrop-blur-xl flex items-center justify-between gap-3 text-xs animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="flex items-center gap-2.5">
+            <Sparkles className="w-4 h-4 text-[#d97706] shrink-0 animate-pulse" />
+            <span className="font-light leading-snug">{toastMessage}</span>
+          </div>
+          <button
+            onClick={() => setToastMessage(null)}
+            className="text-[#A3B1C6] hover:text-white p-1"
+            aria-label="Dismiss message"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
     </section>
   );
 };
