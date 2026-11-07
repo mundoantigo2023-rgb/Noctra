@@ -240,6 +240,23 @@ export default function App() {
       {/* Atmospheric rain & glowing dust */}
       <AtmosphereRainCanvas />
 
+      {/* Fixed Ambient Background Video Loop (Silent) */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="/noctra_hero_bg.png"
+          className="w-full h-full object-cover brightness-[0.20] contrast-125 saturate-[0.75]"
+        >
+          <source src="/noctra.mp4" type="video/mp4" />
+          <source src="/hero_video.mp4" type="video/mp4" />
+        </video>
+        {/* Cinematic dark overlays to preserve contrast and text legibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050508]/60 via-[#050508]/80 to-[#050508]/95" />
+      </div>
+
       {/* Ambient background glows */}
       <div className="fixed inset-0 pointer-events-none z-0 bg-ambient-glow opacity-90" aria-hidden="true" />
 
@@ -481,11 +498,12 @@ const HeroAboveTheFold = ({
           muted
           playsInline
           poster="/noctra_hero_bg.png"
-          className="w-full h-full object-cover brightness-[0.22] contrast-125 saturate-[0.65]"
+          className="w-full h-full object-cover brightness-[0.28] contrast-125 saturate-[0.80]"
         >
+          <source src="/noctra.mp4" type="video/mp4" />
           <source src="/hero_video.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050508] via-[#050508]/60 to-[#050508]/80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050508] via-[#050508]/50 to-[#050508]/80" />
       </div>
 
       {/* Main Container */}
